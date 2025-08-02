@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter, useParams } from "next/navigation"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
@@ -58,7 +58,7 @@ export default function EditProgram() {
     { description: "", dayOfWeek: "", startTime: "", endTime: "" }
   ])
 
-  const fetchProgram = async () => {
+  const fetchProgram = useCallback(async () => {
     try {
       const response = await fetch(`/api/programs/${programId}`)
       if (!response.ok) throw new Error('Failed to fetch program')
@@ -93,13 +93,13 @@ export default function EditProgram() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [programId])
 
   useEffect(() => {
     if (programId) {
       fetchProgram()
     }
-  }, [programId])
+  }, [programId, fetchProgram])
 
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
