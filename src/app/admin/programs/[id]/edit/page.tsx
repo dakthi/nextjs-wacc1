@@ -58,12 +58,6 @@ export default function EditProgram() {
     { description: "", dayOfWeek: "", startTime: "", endTime: "" }
   ])
 
-  useEffect(() => {
-    if (programId) {
-      fetchProgram()
-    }
-  }, [programId])
-
   const fetchProgram = async () => {
     try {
       const response = await fetch(`/api/programs/${programId}`)
@@ -89,21 +83,24 @@ export default function EditProgram() {
       
       // Populate schedules
       if (data.schedules && data.schedules.length > 0) {
-        setSchedules(data.schedules.map((s: any) => ({
-          id: s.id,
-          description: s.description || "",
-          dayOfWeek: s.dayOfWeek || "",
-          startTime: s.startTime || "",
-          endTime: s.endTime || ""
-        })))
+        setSchedules(data.schedules)
+      } else {
+        setSchedules([{ description: "", dayOfWeek: "", startTime: "", endTime: "" }])
       }
-    } catch (error) {
-      setError('Failed to load program')
-      console.error('Error fetching program:', error)
+    } catch (err) {
+      setError("Failed to fetch program details")
+      console.error(err)
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (programId) {
+      fetchProgram()
+    }
+  }, [programId])
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target

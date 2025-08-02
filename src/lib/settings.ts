@@ -66,7 +66,7 @@ export async function getSettings(): Promise<SiteSettings> {
     ])
 
     // Override with database values
-    settings.forEach(setting => {
+    settings.forEach((setting: SiteSetting) => {
       let parsedValue: any = setting.value
       
       // Parse based on type
