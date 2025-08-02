@@ -20,7 +20,7 @@ const thisWeekHighlights = [
     title: "STAY & PLAY SESSIONS",
     subtitle: "Monday, Wednesday & Friday • 10:00 AM - 11:45 AM",
     description: "Drop-in sessions for young children with toys, arts & crafts, and soft play",
-    image: "/img/stayandplay.jpeg",
+    image: "/img/poster-stayandplay.jpeg",
     buttonText: "JOIN US",
     buttonLink: "/programs",
     price: "£4 per session",
@@ -30,7 +30,7 @@ const thisWeekHighlights = [
     title: "ZUMBA FITNESS CLASSES",
     subtitle: "Tuesday • 10:00 AM & 6:15 PM",
     description: "High-energy dance fitness classes combining fun choreography with great music",
-    image: "/img/zumba.jpeg",
+    image: "/img/poster-zumba.jpeg",
     buttonText: "LEARN MORE",
     buttonLink: "/programs",
     ages: "Adults",
@@ -40,7 +40,7 @@ const thisWeekHighlights = [
     title: "ROOM HIRE AVAILABLE",
     subtitle: "Main Hall (120 capacity) • Small Hall (15 capacity)",
     description: "Modern facilities perfect for events, parties, meetings, and community gatherings",
-    image: "/img/main-hall-1.jpeg",
+    image: "/img/80-chairs.jpeg",
     buttonText: "BOOK NOW",
     buttonLink: "/facilities",
     price: "From £20/hour",
@@ -53,7 +53,7 @@ const thisWeekHighlights = [
 const benefitOne = {
   title: "Modern Facilities for Every Occasion",
   desc: "Our centre offers versatile spaces perfect for community events, fitness classes, children's parties, and group meetings.",
-  image: "/img/main-hall.jpeg",
+  image: "/img/80-chairs.jpeg",
   bullets: [
     {
       title: "Main Hall (120 capacity)",
@@ -76,7 +76,7 @@ const benefitOne = {
 const benefitTwo = {
   title: "Convenient Location & Access",
   desc: "Located in Churchill Gardens, West Acton, we're easily accessible by public transport and offer onsite parking.",
-  image: "/img/location.jpeg",
+  image: "/img/entrance.jpeg",
   bullets: [
     {
       title: "West Acton Station",
