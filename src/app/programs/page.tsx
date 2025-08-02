@@ -5,6 +5,8 @@ import ProgramSchedule from "@/components/ProgramSchedule";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   const settings = await getSettings();
   

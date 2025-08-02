@@ -11,6 +11,8 @@ import ProgramSchedule from "@/components/ProgramSchedule";
 import { getSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // Mid page highlights - this week's programs
 const thisWeekHighlights = [
   {
