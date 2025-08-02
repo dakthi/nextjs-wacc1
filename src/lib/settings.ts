@@ -31,7 +31,7 @@ export interface SiteSettings {
 // Cache for settings to avoid repeated database calls
 let settingsCache: Map<string, any> | null = null
 let cacheTimestamp: number = 0
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+const CACHE_DURATION = 30 * 1000 // 30 seconds for faster updates
 
 export async function getSettings(): Promise<SiteSettings> {
   const now = Date.now()

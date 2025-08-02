@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
 
+export const dynamic = 'force-dynamic'
+
 interface SiteSetting {
   id: number
   key: string
@@ -138,7 +140,9 @@ export default function SettingsManagement() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/settings')
+      // Add timestamp to prevent caching
+      const timestamp = Date.now()
+      const response = await fetch(`/api/settings?t=${timestamp}`)
       if (!response.ok) throw new Error('Failed to fetch settings')
       const data = await response.json()
       
@@ -189,7 +193,8 @@ export default function SettingsManagement() {
       if (!response.ok) throw new Error('Failed to update settings')
 
       setSuccess('Settings updated successfully!')
-      fetchSettings()
+      // Force refresh after update
+      setTimeout(() => fetchSettings(), 100)
     } catch (error) {
       console.error('Error updating settings:', error)
       setError('Failed to update settings')

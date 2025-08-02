@@ -10,7 +10,13 @@ export async function GET() {
       orderBy: { displayOrder: 'asc' }
     })
 
-    return NextResponse.json(contactInfo)
+    return NextResponse.json(contactInfo, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching contact info:', error)
     return NextResponse.json(

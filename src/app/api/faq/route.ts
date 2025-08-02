@@ -10,7 +10,13 @@ export async function GET() {
       orderBy: { displayOrder: 'asc' }
     })
 
-    return NextResponse.json(faqItems)
+    return NextResponse.json(faqItems, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching FAQ items:', error)
     return NextResponse.json(

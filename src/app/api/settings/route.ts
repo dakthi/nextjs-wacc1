@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAuth } from '@/lib/auth-middleware'
+import { clearSettingsCache } from '@/lib/settings'
 
 // GET /api/settings - Get all site settings
 export async function GET() {
@@ -9,7 +10,13 @@ export async function GET() {
       orderBy: { key: 'asc' }
     })
 
-    return NextResponse.json(settings)
+    return NextResponse.json(settings, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching site settings:', error)
     return NextResponse.json(
@@ -92,6 +99,9 @@ export async function PUT(request: NextRequest) {
     )
 
     const updatedSettings = await Promise.all(updatePromises)
+
+    // Clear the settings cache so changes reflect immediately
+    clearSettingsCache()
 
     return NextResponse.json(updatedSettings)
   } catch (error) {

@@ -5,6 +5,8 @@ import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic'
+
 interface Program {
   id: number
   title: string

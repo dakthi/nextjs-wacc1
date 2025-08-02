@@ -107,7 +107,7 @@ export default async function Programs() {
       <TextOnlyHero 
         title="Programs & Activities"
         subtitle="15+ regular programs every week for all ages and interests"
-        backgroundImage="/img/IMG_1290 Large.jpeg"
+        backgroundImage="/img/IMG_1290.jpeg"
       />
 
       <Container>

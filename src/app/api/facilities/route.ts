@@ -10,7 +10,13 @@ export async function GET() {
       orderBy: { createdAt: 'asc' }
     })
 
-    return NextResponse.json(facilities)
+    return NextResponse.json(facilities, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    })
   } catch (error) {
     console.error('Error fetching facilities:', error)
     return NextResponse.json(

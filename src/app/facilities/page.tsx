@@ -16,7 +16,7 @@ export const metadata = {
 const mainHallData = {
   title: "Main Hall with Outside Area - Perfect for Large Events",
   desc: "Our spacious Main Hall includes access to paved outside area and kitchen facilities. Ideal for parties, weddings, funerals, wakes, NHS courses, and community events.",
-  image: "/img/80-chairs Large.jpeg",
+  image: "/img/80-chairs.jpeg",
   bullets: [
     {
       title: "9.81m × 12.64m Space + Outside Paved Area",
@@ -49,7 +49,7 @@ const mainHallData = {
 const smallHallData = {
   title: "Small Hall - Intimate Group Setting", 
   desc: "Our cozy Small Hall provides the perfect environment for small group classes, meetings, and intimate gatherings.",
-  image: "/img/manager-office Large.jpeg",
+  image: "/img/manager-office.jpeg",
   bullets: [
     {
       title: "4.26m × 6.20m Space",
@@ -111,32 +111,32 @@ const additionalFacilities = [
 // Facility images gallery
 const facilityImages = [
   {
-    src: "/img/kitchen Large.jpeg",
+    src: "/img/kitchen.jpeg",
     alt: "Kitchen facilities with appliances and seating area",
     title: "Kitchen Facilities"
   },
   {
-    src: "/img/entrance Large.jpeg", 
+    src: "/img/entrance.jpeg", 
     alt: "Main entrance to West Acton Community Centre",
     title: "Main Entrance"
   },
   {
-    src: "/img/grass-field Large.jpeg",
+    src: "/img/grass-field.jpeg",
     alt: "Outdoor grass field area for activities",
     title: "Outdoor Field"
   },
   {
-    src: "/img/playground-1 Large.jpeg",
+    src: "/img/playground-1.jpeg",
     alt: "Children's playground equipment",
     title: "Playground Area"
   },
   {
-    src: "/img/private-carpark Large.jpeg",
+    src: "/img/private-carpark.jpeg",
     alt: "Private parking area for visitors",
     title: "Parking Facilities"
   },
   {
-    src: "/img/layout Large.jpeg",
+    src: "/img/layout.jpeg",
     alt: "Community centre layout and floor plan",
     title: "Centre Layout"
   }
@@ -225,7 +225,7 @@ export default function Facilities() {
       <TextOnlyHero 
         title="Facilities & Room Hire"
         subtitle="Modern, versatile spaces in the heart of West Acton"
-        backgroundImage="/img/80-chairs Large.jpeg"
+        backgroundImage="/img/80-chairs.jpeg"
       />
       
       <Benefits data={mainHallData} />

@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
 
+export const dynamic = 'force-dynamic'
+
 interface User {
   id: string
   name: string | null

@@ -26,7 +26,7 @@ async function main() {
       ageGroup: "Young children & parents",
       price: "Members £4.00 per session, siblings £1.00",
       bookingInfo: "No booking required - just come along!",
-      imageUrl: "/img/poster-stayandplay Large.jpeg",
+      imageUrl: "/img/poster-stayandplay.jpeg",
       schedules: {
         create: [
           { description: "Monday: 10:00 AM - 11:45 AM", dayOfWeek: "Monday", startTime: "10:00", endTime: "11:45" },
@@ -43,7 +43,7 @@ async function main() {
       description: "Traditional martial arts training for children and adults, building discipline, fitness, and confidence.",
       category: "martial-arts",
       ageGroup: "Ages 4+",
-      imageUrl: "/img/poster-taekwondo Large.jpeg",
+      imageUrl: "/img/poster-taekwondo.jpeg",
       schedules: {
         create: [
           { description: "Children (Ages 4-13): Wednesday: 5:00 PM - 7:00 PM", dayOfWeek: "Wednesday", startTime: "17:00", endTime: "19:00" },
@@ -64,7 +64,7 @@ async function main() {
       ageGroup: "Adults",
       contactEmail: "b.k.f.f@hotmail.co.uk",
       contactPhone: "07572 718 870",
-      imageUrl: "/img/poster-kungfu Large.jpeg",
+      imageUrl: "/img/poster-kungfu.jpeg",
       schedules: {
         create: [
           { description: "Tuesday: 7:30 PM - 9:00 PM", dayOfWeek: "Tuesday", startTime: "19:30", endTime: "21:00" }
@@ -82,7 +82,7 @@ async function main() {
       instructor: "Teruko Mori",
       contactEmail: "actonwest@kumoncentre.co.uk",
       contactWebsite: "www.kumon.co.uk/Acton-West",
-      imageUrl: "/img/poster-kumon Large.jpeg",
+      imageUrl: "/img/poster-kumon.jpeg",
       schedules: {
         create: [
           { description: "Tuesday: 3:00 PM - 6:00 PM", dayOfWeek: "Tuesday", startTime: "15:00", endTime: "18:00" },
@@ -100,7 +100,7 @@ async function main() {
       ageGroup: "All ages",
       contactEmail: "EalingJudoClub@hotmail.com",
       contactWebsite: "www.ealingjudoclub.com",
-      imageUrl: "/img/IMG_1290 Large.jpeg",
+      imageUrl: "/img/IMG_1290.jpeg",
       schedules: {
         create: [
           { description: "Contact for current schedule" }
@@ -118,7 +118,7 @@ async function main() {
       instructor: "Anae",
       bookingInfo: "Book at anae-fitness.com",
       contactWebsite: "anae-fitness.com",
-      imageUrl: "/img/poster-zumba Large.jpeg",
+      imageUrl: "/img/poster-zumba.jpeg",
       schedules: {
         create: [
           { description: "Tuesday: 10:00 AM - 11:00 AM", dayOfWeek: "Tuesday", startTime: "10:00", endTime: "11:00" },
@@ -147,7 +147,7 @@ async function main() {
         "80 chairs included",
         "Professional cleaning included"
       ],
-      imageUrl: "/img/80-chairs Large.jpeg"
+      imageUrl: "/img/80-chairs.jpeg"
     }
   })
 
@@ -166,7 +166,7 @@ async function main() {
         "Regular class sessions",
         "Comfortable environment"
       ],
-      imageUrl: "/img/manager-office Large.jpeg"
+      imageUrl: "/img/manager-office.jpeg"
     }
   })
 
