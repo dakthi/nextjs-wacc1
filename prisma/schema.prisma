@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Program {
+  id             Int               @id @default(autoincrement())
+  title          String
+  description    String?
+  category       String
+  ageGroup       String?           @map("age_group")
+  price          String?
+  bookingInfo    String?           @map("booking_info")
+  instructor     String?
+  contactEmail   String?           @map("contact_email")
+  contactPhone   String?           @map("contact_phone")
+  contactWebsite String?           @map("contact_website")
+  imageUrl       String?           @map("image_url")
+  active         Boolean           @default(true)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  schedules      ProgramSchedule[]
+
+  @@map("programs")
+}
+
+model ProgramSchedule {
+  id          Int     @id @default(autoincrement())
+  programId   Int     @map("program_id")
+  dayOfWeek   String? @map("day_of_week")
+  startTime   String? @map("start_time")
+  endTime     String? @map("end_time")
+  description String?
+  active      Boolean @default(true)
+  program     Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@map("program_schedules")
+}
+
+model Facility {
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  subtitle             String?
+  description          String?
+  capacity             Int?
+  dimensions           String?
+  hourlyRate           Decimal?               @map("hourly_rate") @db.Decimal(8, 2)
+  features             Json?
+  imageUrl             String?                @map("image_url")
+  active               Boolean                @default(true)
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  booking_availability booking_availability[]
+  bookings             bookings[]
+
+  @@map("facilities")
+}
+
+model FacilityService {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  features    Json?
+  pricingInfo String? @map("pricing_info")
+  category    String?
+  active      Boolean @default(true)
+
+  @@map("facility_services")
+}
+
+model ContactInfo {
+  id           Int     @id @default(autoincrement())
+  type         String
+  label        String?
+  value        String
+  description  String?
+  displayOrder Int     @default(0) @map("display_order")
+  active       Boolean @default(true)
+
+  @@map("contact_info")
+}
+
+model OpeningHours {
+  id          Int     @id @default(autoincrement())
+  title       String
+  schedule    Json
+  description String?
+  type        String
+  active      Boolean @default(true)
+
+  @@map("opening_hours")
+}
+
+model SiteSetting {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String?
+  type        String
+  description String?
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}
+
+model Testimonial {
+  id           Int      @id @default(autoincrement())
+  quote        String
+  authorName   String   @map("author_name")
+  authorTitle  String?  @map("author_title")
+  avatarUrl    String?  @map("avatar_url")
+  active       Boolean  @default(true)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("testimonials")
+}
+
+model FaqItem {
+  id           Int      @id @default(autoincrement())
+  question     String
+  answer       String
+  category     String?
+  imageUrl     String?  @map("image_url")
+  displayOrder Int      @default(0) @map("display_order")
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("faq_items")
+}
+
+model MediaItem {
+  id           Int      @id @default(autoincrement())
+  filename     String
+  originalName String   @map("original_name")
+  filePath     String   @map("file_path")
+  fileType     String   @map("file_type")
+  fileSize     Int?     @map("file_size")
+  altText      String?  @map("alt_text")
+  caption      String?
+  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+
+  @@map("media_library")
+}
+
+model CommunityGroup {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String?
+  active      Boolean @default(true)
+
+  @@map("community_groups")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  role          String    @default("admin")
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model booking_availability {
+  id           Int      @id @default(autoincrement())
+  facility_id  Int
+  day_of_week  Int
+  start_time   String
+  end_time     String
+  is_available Boolean  @default(true)
+  facilities   Facility @relation(fields: [facility_id], references: [id])
+
+  @@unique([facility_id, day_of_week])
+}
+
+model bookings {
+  id                Int      @id @default(autoincrement())
+  facility_id       Int
+  customer_name     String
+  customer_email    String
+  customer_phone    String?
+  event_title       String
+  event_description String?
+  start_date_time   DateTime
+  end_date_time     DateTime
+  total_hours       Decimal  @db.Decimal(4, 2)
+  hourly_rate       Decimal? @db.Decimal(8, 2)
+  total_cost        Decimal? @db.Decimal(10, 2)
+  status            String   @default("pending")
+  notes             String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime
+  facilities        Facility @relation(fields: [facility_id], references: [id])
+}
