@@ -11,8 +11,8 @@ export async function generateMetadata() {
   const settings = await getSettings();
   
   return {
-    title: `Programs & Activities | ${settings.site_title}`,
-    description: `Join our ${settings.weekly_programs} weekly programs including Stay & Play, Taekwondo, Zumba, Kumon, Judo, and cultural groups. Something for every age and interest.`,
+    title: `Programmes & Activities | ${settings.site_title}`,
+    description: `Join our ${settings.weekly_programs} weekly programmes including Stay & Play, Taekwondo, Zumba, Kumon, Judo, and cultural groups. Something for every age and interest.`,
   };
 }
 
@@ -31,7 +31,7 @@ const categoryNames = {
   "fitness": "Fitness",
 };
 
-// Helper function to organize programs by category for ProgramSchedule component
+// Helper function to organize programmes by category for ProgramSchedule component
 function organizeProgramsForSchedule(programs: any[]) {
   const groupedPrograms: { [key: string]: any[] } = {}
   
@@ -65,7 +65,7 @@ function organizeProgramsForSchedule(programs: any[]) {
 // Helper function to get category title
 function getCategoryTitle(category: string): string {
   const categoryTitles: { [key: string]: string } = {
-    'early-years': 'Early Years Programs',
+    'early-years': 'Early Years Programmes',
     'martial-arts': 'Martial Arts & Combat Sports',
     'education': 'Education & Learning',
     'fitness': 'Fitness & Wellness'
@@ -74,7 +74,7 @@ function getCategoryTitle(category: string): string {
 }
 
 export default async function Programs() {
-  // Fetch programs from database
+  // Fetch programmes from database
   const programs = await prisma.program.findMany({
     where: { active: true },
     include: {
@@ -92,10 +92,10 @@ export default async function Programs() {
     orderBy: { id: 'asc' }
   })
 
-  // Organize programs for ProgramSchedule component
+  // Organize programmes for ProgramSchedule component
   const groupedPrograms = organizeProgramsForSchedule(programs)
   const programScheduleData = {
-    title: "Weekly Programs & Activities",
+    title: "Weekly Programmes & Activities",
     sections: Object.keys(groupedPrograms).map(category => ({
       title: getCategoryTitle(category),
       items: groupedPrograms[category] || []
@@ -105,18 +105,18 @@ export default async function Programs() {
   return (
     <div>
       <TextOnlyHero 
-        title="Programs & Activities"
-        subtitle="15+ regular programs every week for all ages and interests"
+        title="Programmes & Activities"
+        subtitle="15+ regular programmes every week for all ages and interests"
         backgroundImage="/img/IMG_1290.jpeg"
       />
 
       <Container>
         <SectionTitle
-          preTitle="Weekly Programs"
+          preTitle="Weekly Programmes"
           title="Something for Everyone"
         >
           From early years to senior activities, martial arts to educational support, 
-          we offer diverse programs designed to bring our community together.
+          we offer diverse programmes designed to bring our community together.
         </SectionTitle>
 
         <div className="grid gap-8 lg:gap-12 mt-16">

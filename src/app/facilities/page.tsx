@@ -3,13 +3,12 @@ import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Benefits } from "@/components/Benefits";
 import BookingForm from "@/components/BookingForm";
-import { BookingSystemWrapper } from "@/components/BookingSystemWrapper";
 import GoogleMap from "@/components/GoogleMap";
 import ServicesMenu from "@/components/ServicesMenu";
 
 export const metadata = {
   title: "Facilities & Room Hire | West Acton Community Centre",
-  description: "Book our Main Hall (120 capacity) or Small Hall (15 capacity) for your events, classes, and gatherings. Competitive rates and modern facilities.",
+  description: "Book our Main Hall (120 capacity) or Small Hall (15 capacity) for your events, classes, and gatherings. Competitive rates and sustainable facilities.",
 };
 
 // Facilities data
@@ -62,8 +61,8 @@ const smallHallData = {
       icon: "👤",
     },
     {
-      title: "£20 per Hour",
-      desc: "Affordable rate for small group bookings and regular class sessions",
+      title: "Competitive Rates",
+      desc: "Affordable pricing for small group bookings and regular class sessions",
       icon: "💶",
     },
   ],
@@ -77,13 +76,13 @@ const bookingInfo = [
     icon: "💻",
   },
   {
-    title: "Email Bookings", 
-    desc: "Contact us directly at info@westactoncentre.co.uk for availability and booking confirmation",
+    title: "Contact Form", 
+    desc: "Use our website contact form for all booking enquiries and availability requests",
     icon: "📧",
   },
   {
-    title: "Phone Enquiries",
-    desc: "Call us on 020 8992 8899 during office hours for immediate assistance",
+    title: "Booking Enquiries",
+    desc: "Submit detailed booking requests through our contact form for prompt response",
     icon: "📞",
   },
 ];
@@ -95,8 +94,8 @@ const additionalFacilities = [
     description: "Equipped kitchen with sink, power outlets for kettle, and small seating area for refreshments",
   },
   {
-    title: "Onsite Parking",
-    description: "Convenient parking available for event attendees and regular users",
+    title: "Private On-site Parking",
+    description: "Private parking available for event attendees and regular users",
   },
   {
     title: "Accessibility",
@@ -168,8 +167,8 @@ const facilityServicesData = {
           name: "Small Hall",
           subtitle: "15 Person Capacity • 4.26m × 6.20m",
           description: "Intimate space ideal for small group classes, meetings, workshops, and community group gatherings.",
-          price: "£20",
-          duration: "per hour",
+          price: "Contact for pricing",
+          duration: "",
           features: [
             "15 person capacity",
             "Perfect for workshops",
@@ -208,7 +207,7 @@ const facilityServicesData = {
           name: "Parking & Access",
           description: "Convenient facilities to ensure your event runs smoothly.",
           features: [
-            "Onsite parking available",
+            "Private on-site parking available",
             "Ground floor access",
             "Disability accessible",
             "Excellent transport links"
@@ -231,26 +230,13 @@ export default function Facilities() {
       <Benefits data={mainHallData} />
       <Benefits imgPos="right" data={smallHallData} />
 
-      <Container>
-        <SectionTitle
-          preTitle="Book Your Space"
-          title="Online Booking System"
-        >
-          Ready to book one of our halls? Use our interactive booking system to check availability 
-          and secure your preferred date and time instantly.
-        </SectionTitle>
-
-        <div className="mt-16">
-          <BookingSystemWrapper />
-        </div>
-      </Container>
 
       <Container>
         <SectionTitle
           preTitle="Alternative Booking"
           title="Other Ways to Book"
         >
-          Prefer traditional booking methods? We also offer phone and email booking options.
+          All booking enquiries are handled through our convenient contact form system for prompt response.
         </SectionTitle>
 
         <div className="grid gap-10 lg:grid-cols-3 xl:grid-cols-3 mt-16">

@@ -32,7 +32,7 @@ Contact Details:
 Name: ${formData.name}
 Email: ${formData.email}
 Phone: ${formData.phone}
-Organization: ${formData.organization || "N/A"}
+Organisation: ${formData.organization || "N/A"}
 
 Event Details:
 Event Type: ${formData.eventType}
@@ -131,7 +131,7 @@ Regular Booking: ${formData.isRegularBooking ? "Yes" : "No"}
 
       <div>
         <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-2">
-          Organization (Optional)
+          Organisation (Optional)
         </label>
         <input
           type="text"

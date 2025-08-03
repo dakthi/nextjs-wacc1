@@ -60,8 +60,8 @@ export async function getSettings(): Promise<SiteSettings> {
       ['weekly_programs', '15+'],
       ['main_hall_capacity', '120'],
       ['opening_hours_text', '7 days'],
-      ['opening_hours_details', 'Open Monday to Sunday, 9am-10pm'],
-      ['hero_subtitle', 'Your local hub for education, leisure, and recreational programs. We serve over 2,000 residents in West Acton with 15+ regular programs every week.'],
+      ['opening_hours_details', 'Open Monday to Sunday, 7am-11pm'],
+      ['hero_subtitle', 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.'],
       ['hero_description', 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.']
     ])
 
@@ -117,8 +117,8 @@ export async function getSettings(): Promise<SiteSettings> {
       weekly_programs: '15+',
       main_hall_capacity: '120',
       opening_hours_text: '7 days',
-      opening_hours_details: 'Open Monday to Sunday, 9am-10pm',
-      hero_subtitle: 'Your local hub for education, leisure, and recreational programs. We serve over 2,000 residents in West Acton with 15+ regular programs every week.',
+      opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
+      hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
       hero_description: 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.'
     }
   }
@@ -192,8 +192,8 @@ export function useSettings() {
         weekly_programs: '15+',
         main_hall_capacity: '120',
         opening_hours_text: '7 days',
-        opening_hours_details: 'Open Monday to Sunday, 9am-10pm',
-        hero_subtitle: 'Your local hub for education, leisure, and recreational programs. We serve over 2,000 residents in West Acton with 15+ regular programs every week.',
+        opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
+        hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
         hero_description: 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.'
       }
     }

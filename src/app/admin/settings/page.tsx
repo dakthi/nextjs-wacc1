@@ -91,7 +91,7 @@ const DEFAULT_SETTINGS: Omit<SiteSetting, 'id' | 'updatedAt'>[] = [
   },
   {
     key: 'opening_hours_details',
-    value: 'Monday to Sunday, 9am-10pm',
+    value: 'Monday to Sunday, 7am-11pm',
     type: 'text',
     description: 'Detailed opening hours information'
   },

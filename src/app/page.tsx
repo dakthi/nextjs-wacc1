@@ -2,7 +2,7 @@ import { Container } from "@/components/Container";
 import { SectionTitle } from "@/components/SectionTitle";
 import { Benefits } from "@/components/Benefits";
 import { Testimonials } from "@/components/Testimonials";
-import { Faq } from "@/components/Faq";
+import Faq from "@/components/Faq";
 import { VideoSelfHosted } from "@/components/VideoSelfHosted";
 import { WeeklyHighlights } from "@/components/WeeklyHighlights";
 import AboutUs from "@/components/AboutUs";
@@ -13,37 +13,27 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
-// Mid page highlights - this week's programs
-const thisWeekHighlights = [
+// Main highlights - programmes and facilities
+const mainHighlights = [
   {
-    id: "stay-play",
-    title: "STAY & PLAY SESSIONS",
-    subtitle: "Monday, Wednesday & Friday • 10:00 AM - 11:45 AM",
-    description: "Drop-in sessions for young children with toys, arts & crafts, and soft play",
+    id: "regular-events",
+    title: "REGULAR PROGRAMMES",
+    subtitle: "Weekly activities for all ages and interests",
+    description: "From Stay & Play sessions and fitness classes to martial arts and educational programmes",
     image: "/img/poster-stayandplay.jpeg",
-    buttonText: "JOIN US",
+    buttonText: "VIEW PROGRAMMES",
     buttonLink: "/programs",
-    price: "£4 per session",
-  },
-  {
-    id: "zumba",
-    title: "ZUMBA FITNESS CLASSES",
-    subtitle: "Tuesday • 10:00 AM & 6:15 PM",
-    description: "High-energy dance fitness classes combining fun choreography with great music",
-    image: "/img/poster-zumba.jpeg",
-    buttonText: "LEARN MORE",
-    buttonLink: "/programs",
-    ages: "Adults",
+    features: "15+ weekly programmes",
   },
   {
     id: "room-hire",
-    title: "ROOM HIRE AVAILABLE",
-    subtitle: "Main Hall (120 capacity) • Small Hall (15 capacity)",
-    description: "Modern facilities perfect for events, parties, meetings, and community gatherings",
+    title: "ROOM HIRE",
+    subtitle: "Flexible spaces for your events",
+    description: "Sustainable facilities with LED lighting and energy-efficient systems, perfect for events, parties, meetings, and community gatherings",
     image: "/img/80-chairs.jpeg",
     buttonText: "BOOK NOW",
     buttonLink: "/facilities",
-    price: "From £20/hour",
+    features: "From £15/hour",
   },
 ];
 
@@ -85,41 +75,22 @@ const benefitTwo = {
     },
     {
       title: "Bus Routes",
-      desc: "Served by buses 207, 218, and H40 for easy access from across London",
+      desc: "Served by bus 218 for easy access from across London",
       icon: "●",
     },
     {
-      title: "Onsite Parking",
-      desc: "Convenient parking available for visitors and event attendees",
+      title: "Private On-site Parking",
+      desc: "Private parking available for visitors and event attendees",
       icon: "●",
     },
   ],
 };
 
-// FAQ data for WACC
-const faqData = [
-  {
-    question: "How do I book a room at WACC?",
-    answer: "You can book rooms through our website contact form or email us at info@westactoncentre.co.uk. Our Main Hall is £50/hour and Small Hall is £20/hour.",
-  },
-  {
-    question: "What are your opening hours?",
-    answer: "The centre is open Monday to Sunday from 9:00 AM to 10:00 PM. Our office hours are Monday 9:30-11:00 AM and Wednesday-Friday 10:00 AM-2:30 PM.",
-  },
-  {
-    question: "Do I need to book for Stay & Play sessions?",
-    answer: "No booking required! Just come along on Monday, Wednesday, or Friday from 10:00-11:45 AM. Sessions cost £4 for members, £1 for siblings.",
-  },
-  {
-    question: "Is parking available?",
-    answer: "Yes, we have onsite parking available for visitors and event attendees.",
-  },
-];
 
 export default async function Home() {
   const settings = await getSettings();
   
-  // Fetch some programs for the program preview
+  // Fetch some programmes for the programme preview
   const featuredPrograms = await prisma.program.findMany({
     where: { active: true },
     include: {
@@ -140,7 +111,7 @@ export default async function Home() {
     },
     {
       title: settings.weekly_programs,
-      desc: "Regular groups and programs per week",
+      desc: "Regular groups and programmes per week",
     },
     {
       title: settings.main_hall_capacity,
@@ -155,27 +126,27 @@ export default async function Home() {
   // Additional stats for extended content
   const extendedStats = [
     {
-      title: "£20",
+      title: "£15",
       desc: "Starting rate per hour for hall hire",
     },
     {
-      title: "2009",
+      title: "1990",
       desc: "Year we started serving the community",
     },
     {
-      title: "15+",
+      title: "35+",
       desc: "Years of community service",
     },
     {
       title: "100%",
-      desc: "Volunteer-run community organization",
+      desc: "Volunteer-run community organisation",
     },
   ];
 
-  // Format programs for ProgramSchedule component
+  // Format programmes for ProgramSchedule component
   const programScheduleSections = featuredPrograms.length > 0 ? [
     {
-      title: "Featured Programs",
+      title: "Featured Programmes",
       items: featuredPrograms.slice(0, 6).map((program: any) => ({
         name: program.title,
         subtitle: program.instructor ? `with ${program.instructor}` : undefined,
@@ -201,7 +172,7 @@ export default async function Home() {
       <VideoSelfHosted settings={settings} />
       
       {/* Weekly Highlights */}
-      <WeeklyHighlights highlights={thisWeekHighlights} />
+      <WeeklyHighlights highlights={mainHighlights} />
       
       {/* Community Impact Stats */}
       <Container>
@@ -210,7 +181,7 @@ export default async function Home() {
           title="Serving West Acton Together"
         >
           {settings.site_title} is dedicated to improving wellbeing through education, 
-          leisure, and recreational programs. We work closely with local businesses and residents 
+          leisure, and recreational programmes. We work closely with local businesses and residents 
           to create a vibrant, supportive community.
         </SectionTitle>
 
@@ -239,7 +210,7 @@ export default async function Home() {
       {programScheduleSections.length > 0 && (
         <Container className="py-16">
           <ProgramSchedule
-            title="Featured Programs This Week"
+            title="Featured Programmes This Week"
             sections={programScheduleSections}
           />
           <div className="text-center mt-8">
@@ -247,7 +218,7 @@ export default async function Home() {
               href="/programs"
               className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-lg text-lg uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              View All Programs
+              View All Programmes
             </a>
           </div>
         </Container>
@@ -319,7 +290,7 @@ export default async function Home() {
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">Professional Standards</h3>
             <p className="text-gray-600 leading-relaxed">
-              As a registered charity under Ealing Council, we maintain the highest standards of cleanliness, 
+              As a registered charity, we maintain the highest standards of cleanliness, 
               safety, and service while keeping our rates competitive.
             </p>
           </div>
@@ -359,7 +330,7 @@ export default async function Home() {
                   <span className="text-primary-600 font-bold">🚌</span>
                   <div>
                     <p className="font-medium">Bus Routes</p>
-                    <p>207, 218, H40 - Churchill Gardens stop</p>
+                    <p>218 - Churchill Gardens stop</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
@@ -376,8 +347,6 @@ export default async function Home() {
               <h3 className="text-xl font-bold text-gray-900 mb-4">Contact Information</h3>
               <div className="space-y-3 text-gray-700">
                 <p><strong>Address:</strong> {settings.address}</p>
-                <p><strong>Phone:</strong> {settings.contact_phone}</p>
-                <p><strong>Email:</strong> {settings.contact_email}</p>
                 <p><strong>Hours:</strong> {settings.opening_hours_details}</p>
               </div>
             </div>
@@ -389,7 +358,7 @@ export default async function Home() {
                   href="/programs" 
                   className="text-primary-600 hover:text-primary-800 font-medium transition-colors"
                 >
-                  → View Programs
+                  → View Programmes
                 </a>
                 <a 
                   href="/facilities" 

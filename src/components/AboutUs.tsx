@@ -107,7 +107,7 @@ const AboutUs = () => {
                   <h4 className="font-bold text-primary-600 mb-3 text-lg uppercase tracking-wide">REGISTERED CHARITY</h4>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  Operating as a registered charity under Ealing Council ownership, we reinvest all proceeds back into 
+                  Operating as a registered charity, we reinvest all proceeds back into 
                   the community. This allows us to offer competitive rates while continuously improving our facilities and services.
                 </p>
               </div>

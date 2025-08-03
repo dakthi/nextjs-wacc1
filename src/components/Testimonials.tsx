@@ -17,21 +17,21 @@ const fallbackTestimonials = [
     quote: "WACC has been such a blessing for our family. The Stay & Play sessions give our toddler a chance to socialize while I connect with other parents in the community.",
     authorName: "Sarah Johnson",
     authorTitle: "Parent, West Acton resident",
-    avatarUrl: "/img/Sample_User_Icon.png"
+    avatarUrl: "/img/user-1.png"
   },
   {
     id: 2,
     quote: "I've been attending Taekwondo classes here for 3 years. The instructors are excellent and the community spirit is amazing. It's not just exercise - it's a second home.",
     authorName: "David Chen",
     authorTitle: "Taekwondo student",
-    avatarUrl: "/img/Sample_User_Icon.png"
+    avatarUrl: "/img/user-1.png"
   },
   {
     id: 3,
     quote: "We recently held our community fundraiser here and the staff were incredibly helpful. The Main Hall was perfect for our event and the kitchen facilities made catering so much easier.",
     authorName: "Amira Hassan",
     authorTitle: "Community organizer",
-    avatarUrl: "/img/Sample_User_Icon.png"
+    avatarUrl: "/img/user-1.png"
   },
 ];
 
@@ -77,7 +77,7 @@ export const Testimonials = async () => {
           <TestimonialCard 
             key={testimonial.id}
             quote={testimonial.quote}
-            avatar={testimonial.avatarUrl || "/img/Sample_User_Icon.png"}
+            avatar={testimonial.avatarUrl || "/img/user-1.png"}
             name={testimonial.authorName}
             title={testimonial.authorTitle || ""}
           />

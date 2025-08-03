@@ -23,14 +23,14 @@ export const WeeklyHighlights = ({ highlights }: WeeklyHighlightsProps) => {
       <Container>
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
-            THIS WEEK'S PROGRAMS & FACILITIES
+            PROGRAMMES & FACILITIES
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover what's happening at WACC this week and explore our modern facilities
+            Discover our regular programmes and explore our sustainable facilities available for hire
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
           {highlights.map((highlight) => (
             <HighlightCard key={highlight.id} {...highlight} />
           ))}

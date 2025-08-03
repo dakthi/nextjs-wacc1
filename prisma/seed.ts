@@ -241,7 +241,7 @@ async function main() {
     data: [
       {
         title: "Centre Opening Hours",
-        schedule: ["Monday - Sunday: 9:00 AM - 10:00 PM"],
+        schedule: ["Monday - Sunday: 7:00 AM - 11:00 PM"],
         description: "The centre is open 7 days a week for programs and events",
         type: "centre"
       },
@@ -266,21 +266,21 @@ async function main() {
         quote: "WACC has been such a blessing for our family. The Stay & Play sessions give our toddler a chance to socialize while I connect with other parents in the community.",
         authorName: "Sarah Johnson",
         authorTitle: "Parent, West Acton resident",
-        avatarUrl: "/img/Sample_User_Icon.png",
+        avatarUrl: "/img/user-1.png",
         displayOrder: 1
       },
       {
         quote: "I've been attending Taekwondo classes here for 3 years. The instructors are excellent and the community spirit is amazing. It's not just exercise - it's a second home.",
         authorName: "David Chen",
         authorTitle: "Taekwondo student",
-        avatarUrl: "/img/Sample_User_Icon.png",
+        avatarUrl: "/img/user-1.png",
         displayOrder: 2
       },
       {
         quote: "We recently held our community fundraiser here and the staff were incredibly helpful. The Main Hall was perfect for our event and the kitchen facilities made catering so much easier.",
         authorName: "Amira Hassan",
         authorTitle: "Community organizer",
-        avatarUrl: "/img/Sample_User_Icon.png",
+        avatarUrl: "/img/user-1.png",
         displayOrder: 3
       }
     ]
@@ -291,13 +291,13 @@ async function main() {
     data: [
       {
         question: "How do I book a room at WACC?",
-        answer: "You can book rooms through our website contact form or email us at info@westactoncentre.co.uk. Our Main Hall is £50/hour and Small Hall is £20/hour.",
+        answer: "You can book rooms through our website contact form. Please contact us for current pricing.",
         category: "Booking",
         displayOrder: 1
       },
       {
         question: "What are your opening hours?",
-        answer: "The centre is open Monday to Sunday from 9:00 AM to 10:00 PM. Our office hours are Monday 9:30-11:00 AM and Wednesday-Friday 10:00 AM-2:30 PM.",
+        answer: "The centre is open Monday to Sunday from 7:00 AM to 11:00 PM.",
         category: "General",
         displayOrder: 2
       },

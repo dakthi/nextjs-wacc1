@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Facebook, Linkedin, Instagram } from "./SocialIcons";
+import { Facebook, Linkedin } from "./SocialIcons";
 import { SiteSettings } from "@/lib/settings";
 
 interface FooterContentProps {
@@ -29,12 +29,8 @@ export function FooterContent({ settings }: FooterContentProps) {
                 <span className="ml-2">{settings.address}</span>
               </p>
               <p className="flex items-center">
-                <span className="font-medium text-primary-600">Phone:</span>
-                <span className="ml-2">{settings.contact_phone}</span>
-              </p>
-              <p className="flex items-center">
-                <span className="font-medium text-primary-600">Email:</span>
-                <span className="ml-2">{settings.contact_email}</span>
+                <span className="font-medium text-primary-600">Contact:</span>
+                <span className="ml-2">Use our contact form for all enquiries</span>
               </p>
             </div>
           </div>
@@ -63,11 +59,6 @@ export function FooterContent({ settings }: FooterContentProps) {
               <div>
                 <p className="font-medium text-gray-800">Centre Hours:</p>
                 <p>{settings.opening_hours_details}</p>
-              </div>
-              <div className="pt-2">
-                <p className="font-medium text-gray-800">Office Hours:</p>
-                <p>Monday: 9:30 AM - 11:00 AM</p>
-                <p>Wed-Fri: 10:00 AM - 2:30 PM</p>
               </div>
             </div>
           </div>
@@ -98,19 +89,6 @@ export function FooterContent({ settings }: FooterContentProps) {
                     className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
                   >
                     <span className="ml-2">Follow us on Twitter</span>
-                  </a>
-                </div>
-              )}
-              {settings.social_instagram && (
-                <div>
-                  <a
-                    href={settings.social_instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-gray-600 hover:text-primary-600 transition-colors"
-                  >
-                    <Instagram />
-                    <span className="ml-2">Follow us on Instagram</span>
                   </a>
                 </div>
               )}
