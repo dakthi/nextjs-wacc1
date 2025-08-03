@@ -45,7 +45,7 @@ function organizeFaqsByCategory(faqItems: DatabaseFaqItem[]): FaqSection[] {
     if (!sections[category]) {
       sections[category] = [];
     }
-    sections[category].push(item);
+    sections[category]!.push(item);
   });
 
   return Object.entries(sections).map(([title, items]) => ({
