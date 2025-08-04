@@ -1,6 +1,12 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY environment variable is not set')
+  }
+  return new Resend(apiKey)
+}
 
 export interface AdminNotificationData {
   bookingId: string
@@ -20,6 +26,7 @@ export interface AdminNotificationData {
 
 export async function sendAdminBookingNotification(data: AdminNotificationData) {
   try {
+    const resend = getResendClient()
     const { data: emailData, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: ['m.wachnicka@btconnect.com'],
@@ -78,6 +85,7 @@ export async function sendAdminBookingStatusUpdate(data: AdminNotificationData) 
 
     const message = statusMessages[data.status as keyof typeof statusMessages] || `Booking status updated to: ${data.status}`
 
+    const resend = getResendClient()
     const { data: emailData, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: ['dakthi9@gmail.com'],
