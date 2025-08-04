@@ -22,7 +22,7 @@ export async function sendAdminBookingNotification(data: AdminNotificationData) 
   try {
     const { data: emailData, error } = await resend.emails.send({
       from: 'onboarding@resend.dev',
-      to: ['dakthi9@gmail.com'],
+      to: ['m.wachnicka@btconnect.com'],
       subject: `New Booking Request - ${data.eventTitle}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
