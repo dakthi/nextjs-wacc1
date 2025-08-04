@@ -152,7 +152,7 @@ export default async function Home() {
         subtitle: program.instructor ? `with ${program.instructor}` : undefined,
         description: program.description || undefined,
         schedule: program.schedules.length > 0 
-          ? program.schedules.map((s: any) => s.description).filter((desc: any): desc is string => desc !== null && desc !== undefined)
+          ? program.schedules.map((s: any) => s.description).filter((desc: any) => desc !== null && desc !== undefined)
           : ["Schedule available upon inquiry"],
         price: program.price || undefined,
         contact: {
@@ -168,10 +168,8 @@ export default async function Home() {
 
   return (
     <div>
-      {/* Hero Section */}
+      {/* Test 3: Hero + WeeklyHighlights + Community Stats */}
       <VideoSelfHosted settings={settings} />
-      
-      {/* Weekly Highlights */}
       <WeeklyHighlights highlights={mainHighlights} />
       
       {/* Community Impact Stats */}
@@ -181,7 +179,7 @@ export default async function Home() {
           title="Serving West Acton Together"
         >
           {settings.site_title} is dedicated to improving wellbeing through education, 
-          leisure, and recreational programmes. We work closely with local businesses and residents 
+          leisure, and recreational programmes. We work closely with local businesses and community members 
           to create a vibrant, supportive community.
         </SectionTitle>
 
@@ -226,163 +224,6 @@ export default async function Home() {
 
       {/* Testimonials */}
       <Testimonials />
-
-      {/* Extended Community Stats */}
-      <Container className="py-16">
-        <SectionTitle
-          preTitle="Our Track Record"
-          title="Why Choose West Acton Community Centre"
-        >
-          Over the years, we've built a reputation for excellence, community focus, and 
-          professional service that sets us apart from other venues in the area.
-        </SectionTitle>
-
-        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4 mt-16">
-          {extendedStats.map((item, index) => (
-            <div key={index} className="bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 rounded-lg p-6 text-center shadow-sm">
-              <p className="text-3xl font-heading font-bold text-primary-600 mb-2">
-                {item.title}
-              </p>
-              <p className="text-gray-800 font-medium">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Container>
-
-      {/* What Makes Us Special Section */}
-      <Container className="py-16">
-        <SectionTitle
-          preTitle="What Makes Us Special"
-          title="More Than Just a Venue"
-        >
-          We're not just a place to hold events – we're a community hub that brings people together, 
-          supports local initiatives, and creates lasting connections.
-        </SectionTitle>
-
-        <div className="grid gap-8 lg:grid-cols-3 mt-16">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl">🤝</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Community-Led Events</h3>
-            <p className="text-gray-600 leading-relaxed">
-              From NHS seminars to cultural fairs and cake sales, we host events that matter to our community. 
-              Every gathering strengthens the bonds that make West Acton special.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl">💡</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Flexible Spaces</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Whether you need space for 15 or 120 people, our halls can be configured to suit your needs. 
-              Kitchen facilities, AV equipment, and parking make hosting easy.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl">⭐</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Professional Standards</h3>
-            <p className="text-gray-600 leading-relaxed">
-              As a registered charity, we maintain the highest standards of cleanliness, 
-              safety, and service while keeping our rates competitive.
-            </p>
-          </div>
-        </div>
-      </Container>
-
-      {/* FAQ Section */}
-      <Faq />
-
-      {/* Location & Contact Section */}
-      <Container className="py-16">
-        <SectionTitle
-          preTitle="Visit Us"
-          title="Find West Acton Community Centre"
-        >
-          Located in the heart of Churchill Gardens, we're easily accessible by public transport 
-          and offer convenient onsite parking for all our visitors.
-        </SectionTitle>
-
-        <div className="grid gap-12 lg:grid-cols-2 mt-16">
-          <div>
-            <GoogleMap address={settings.address} />
-          </div>
-          
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Getting Here</h3>
-              <div className="space-y-4 text-gray-600">
-                <div className="flex items-start space-x-3">
-                  <span className="text-primary-600 font-bold">🚇</span>
-                  <div>
-                    <p className="font-medium">Underground</p>
-                    <p>West Acton Station (Central Line) - 5 minute walk</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="text-primary-600 font-bold">🚌</span>
-                  <div>
-                    <p className="font-medium">Bus Routes</p>
-                    <p>218 - Churchill Gardens stop</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <span className="text-primary-600 font-bold">🚗</span>
-                  <div>
-                    <p className="font-medium">Parking</p>
-                    <p>Free onsite parking available</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-primary-50 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Contact Information</h3>
-              <div className="space-y-3 text-gray-700">
-                <p><strong>Address:</strong> {settings.address}</p>
-                <p><strong>Hours:</strong> {settings.opening_hours_details}</p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-primary-200 rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Links</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <a 
-                  href="/programs" 
-                  className="text-primary-600 hover:text-primary-800 font-medium transition-colors"
-                >
-                  → View Programmes
-                </a>
-                <a 
-                  href="/facilities" 
-                  className="text-primary-600 hover:text-primary-800 font-medium transition-colors"
-                >
-                  → Book a Room
-                </a>
-                <a 
-                  href="/about" 
-                  className="text-primary-600 hover:text-primary-800 font-medium transition-colors"
-                >
-                  → About Us
-                </a>
-                <a 
-                  href="/contact" 
-                  className="text-primary-600 hover:text-primary-800 font-medium transition-colors"
-                >
-                  → Contact
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
     </div>
   );
 }

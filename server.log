@@ -1,0 +1,25 @@
+
+> wacc-website@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:3000
+  - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1505ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.4s (840 modules)
+ ✓ Compiled in 772ms (408 modules)
+ ⨯ Error: Functions are not valid as a child of Client Components. This may happen if you return children instead of <children /> from render. Or maybe you meant to call this function rather than return it.
+  <... as="div" className=... children={function children}>
+                                       ^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>)
+digest: "2165171206"
+ ⨯ Error: Functions are not valid as a child of Client Components. This may happen if you return children instead of <children /> from render. Or maybe you meant to call this function rather than return it.
+  <... as="div" className=... children={function children}>
+                                       ^^^^^^^^^^^^^^^^^^^
+    at stringify (<anonymous>)
+digest: "2165171206"
+ GET / 500 in 3634ms
+[?25h
