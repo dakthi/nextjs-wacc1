@@ -61,8 +61,8 @@ export default function BookingForm() {
 
       // Create date-time objects
       const eventDate = new Date(formData.eventDate);
-      const [startHour, startMinute] = formData.startTime.split(':').map(Number);
-      const [endHour, endMinute] = formData.endTime.split(':').map(Number);
+      const [startHour = 0, startMinute = 0] = formData.startTime.split(':').map(Number);
+      const [endHour = 0, endMinute = 0] = formData.endTime.split(':').map(Number);
       
       const startDateTime = new Date(eventDate);
       startDateTime.setHours(startHour, startMinute, 0, 0);
