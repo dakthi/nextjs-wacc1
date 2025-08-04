@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAuth } from '@/lib/auth-middleware'
+import { sendAdminBookingNotification } from '@/lib/email'
 
 // GET /api/bookings - Get all bookings (admin only)
 export async function GET(request: NextRequest) {
@@ -165,6 +166,30 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // Send admin email notification
+    try {
+      const adminEmailData = {
+        bookingId: booking.id.toString(),
+        customerName: booking.customer_name,
+        customerEmail: booking.customer_email,
+        customerPhone: booking.customer_phone,
+        facilityName: booking.facilities?.name || 'Unknown Facility',
+        eventTitle: booking.event_title,
+        eventDescription: booking.event_description,
+        startDateTime: booking.start_date_time,
+        endDateTime: booking.end_date_time,
+        totalCost: booking.total_cost ? parseFloat(booking.total_cost.toString()) : undefined,
+        totalHours: parseFloat(booking.total_hours.toString()),
+        status: booking.status,
+        notes: booking.notes
+      }
+
+      await sendAdminBookingNotification(adminEmailData)
+    } catch (emailError) {
+      console.error('Failed to send admin booking notification:', emailError)
+      // Don't fail the booking creation if email fails
+    }
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error) {

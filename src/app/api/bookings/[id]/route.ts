@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAuth } from '@/lib/auth-middleware'
+import { sendAdminBookingStatusUpdate } from '@/lib/email'
 
 // GET /api/bookings/[id] - Get specific booking
 export async function GET(
@@ -168,6 +169,32 @@ export async function PUT(
       }
     })
 
+    // Send admin email notification if status changed
+    if (status !== undefined && status !== existingBooking.status) {
+      try {
+        const adminEmailData = {
+          bookingId: updatedBooking.id.toString(),
+          customerName: updatedBooking.customer_name,
+          customerEmail: updatedBooking.customer_email,
+          customerPhone: updatedBooking.customer_phone,
+          facilityName: updatedBooking.facilities?.name || 'Unknown Facility',
+          eventTitle: updatedBooking.event_title,
+          eventDescription: updatedBooking.event_description,
+          startDateTime: updatedBooking.start_date_time,
+          endDateTime: updatedBooking.end_date_time,
+          totalCost: updatedBooking.total_cost ? parseFloat(updatedBooking.total_cost.toString()) : undefined,
+          totalHours: parseFloat(updatedBooking.total_hours.toString()),
+          status: updatedBooking.status,
+          notes: updatedBooking.notes
+        }
+
+        await sendAdminBookingStatusUpdate(adminEmailData)
+      } catch (emailError) {
+        console.error('Failed to send admin status update:', emailError)
+        // Don't fail the update if email fails
+      }
+    }
+
     return NextResponse.json(updatedBooking)
   } catch (error) {
     console.error('Error updating booking:', error)
@@ -203,10 +230,43 @@ export async function DELETE(
     }
 
     // Update status to cancelled instead of hard delete
-    await prisma.bookings.update({
+    const updatedBooking = await prisma.bookings.update({
       where: { id },
-      data: { status: 'cancelled' }
+      data: { status: 'cancelled' },
+      include: {
+        facilities: {
+          select: {
+            id: true,
+            name: true,
+            hourlyRate: true
+          }
+        }
+      }
     })
+
+    // Send admin cancellation notification
+    try {
+      const adminEmailData = {
+        bookingId: updatedBooking.id.toString(),
+        customerName: updatedBooking.customer_name,
+        customerEmail: updatedBooking.customer_email,
+        customerPhone: updatedBooking.customer_phone,
+        facilityName: updatedBooking.facilities?.name || 'Unknown Facility',
+        eventTitle: updatedBooking.event_title,
+        eventDescription: updatedBooking.event_description,
+        startDateTime: updatedBooking.start_date_time,
+        endDateTime: updatedBooking.end_date_time,
+        totalCost: updatedBooking.total_cost ? parseFloat(updatedBooking.total_cost.toString()) : undefined,
+        totalHours: parseFloat(updatedBooking.total_hours.toString()),
+        status: 'cancelled',
+        notes: updatedBooking.notes
+      }
+
+      await sendAdminBookingStatusUpdate(adminEmailData)
+    } catch (emailError) {
+      console.error('Failed to send admin cancellation notification:', emailError)
+      // Don't fail the cancellation if email fails
+    }
 
     return NextResponse.json({ message: 'Booking cancelled successfully' })
   } catch (error) {
