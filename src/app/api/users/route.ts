@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAuth } from '@/lib/auth-middleware'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // GET /api/users - Get all users (admin only)
 export async function GET(request: NextRequest) {
   // Check authentication for admin operations

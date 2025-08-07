@@ -1,26 +1,38 @@
-# Dockerfile
+# ---- Stage 1: Builder ----
+FROM node:18-alpine AS builder
 
-# 1. Use Node base image
-FROM node:18-alpine
-
-# 2. Set working directory
+# Set working directory
 WORKDIR /app
 
-# 3. Copy package files
+# Install dependencies first (cached if package*.json doesn't change)
 COPY package*.json ./
+RUN npm ci
 
-# 4. Install dependencies
-RUN npm install
-
-# 5. Copy the rest of the app (but not media files)
+# Copy application code (but .dockerignore will exclude junk like node_modules)
 COPY . .
 
-# 6. Build the Next.js app
+# Generate Prisma client
+RUN npx prisma generate
+
+# Build Next.js app
 RUN npm run build
 
-# 7. Expose the port
+
+# ---- Stage 2: Production Image ----
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy only necessary files from builder stage
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+
+# Expose Next.js port
 EXPOSE 3000
 
-# 8. Start the app
-CMD ["npm", "run", "start"]
-
+# Start the Next.js server
+CMD ["npm", "start"]

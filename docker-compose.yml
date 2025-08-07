@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: nextjs_wacc1
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://wacc_user:kNiN4321@db:5432/wacc_cms_local
+      NEXTAUTH_SECRET: "your_very_secure_random_string_here"
+    depends_on:
+      - db
+    networks:
+      - cms_network
+
+  db:
+    image: postgres:14
+    container_name: cms_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: wacc_user
+      POSTGRES_PASSWORD: kNiN4321
+      POSTGRES_DB: wacc_cms_local
+    volumes:
+      - cms_db_data:/var/lib/postgresql/data
+      - ./wacc_cms_dump.sql:/docker-entrypoint-initdb.d/wacc_cms_dump.sql
+    networks:
+      - cms_network
+
+networks:
+  cms_network:
+
+volumes:
+  cms_db_data:

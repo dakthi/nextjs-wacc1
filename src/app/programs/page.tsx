@@ -5,6 +5,13 @@ import ProgramSchedule from "@/components/ProgramSchedule";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 
+interface CommunityGroup {
+  id: number;
+  title: string;
+  description: string | null;
+  active: boolean;
+}
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
@@ -232,13 +239,13 @@ export default async function Programs() {
         </SectionTitle>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-16">
-          {communityGroups.map((group: any) => (
+          {communityGroups.map((group: CommunityGroup) => (
             <div key={group.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-heading font-bold text-primary-600 mb-3 uppercase tracking-tight">
                 {group.title}
               </h3>
               <p className="text-gray-700 leading-relaxed">
-                {group.description}
+                {group.description || 'No description available'}
               </p>
             </div>
           ))}

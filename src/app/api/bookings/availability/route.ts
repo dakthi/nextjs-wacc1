@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 // GET /api/bookings/availability - Get available time slots for a facility
 export async function GET(request: NextRequest) {
   try {
