@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "wacc.tar.gz"
-          target: "/root/docker-images/wacc"
+          target: "/root/docker-images/wacc/"
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@master
@@ -50,4 +50,4 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            /root/docker-images/deploy-wacc.sh
+            /root/docker-images/wacc/deploy-wacc.sh
