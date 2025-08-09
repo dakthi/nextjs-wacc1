@@ -1,4 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { TextOnlyHero } from "@/components/TextOnlyHero";
+import { Benefits } from "@/components/Benefits";
+import { Container } from "@/components/Container";
+import { SectionTitle } from "@/components/SectionTitle";
+import ServicesMenu from "@/components/ServicesMenu";
+import { GoogleMap } from "@/components/GoogleMap";
+import BookingForm from "@/components/BookingForm";
 
 export const metadata = {
   title: "Facilities & Room Hire | West Acton Community Centre",

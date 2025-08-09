@@ -84,7 +84,7 @@ export default async function Home() {
       title: "REGULAR PROGRAMMES",
       subtitle: "Weekly activities for all ages and interests",
       description: activePrograms.length > 0 
-        ? `Join our vibrant community with programmes including ${activePrograms[0].title}${activePrograms[0].ageGroup ? ` for ${activePrograms[0].ageGroup}` : ''}. From fitness classes to educational sessions, there's something for everyone.`
+        ? `Join our vibrant community with programmes including ${activePrograms[0]?.title || 'various activities'}${activePrograms[0]?.ageGroup ? ` for ${activePrograms[0].ageGroup}` : ''}. From fitness classes to educational sessions, there's something for everyone.`
         : "From Stay & Play sessions and fitness classes to martial arts and educational programmes for all ages and interests",
       image: "/img/poster-stayandplay.jpeg",
       buttonText: "VIEW PROGRAMMES",
