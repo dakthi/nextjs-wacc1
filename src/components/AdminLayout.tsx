@@ -10,14 +10,12 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: "🏠" },
-  { name: "Programs", href: "/admin/programs", icon: "📚" },
-  { name: "Facilities", href: "/admin/facilities", icon: "🏢" },
-  { name: "Testimonials", href: "/admin/testimonials", icon: "💬" },
-  { name: "FAQ", href: "/admin/faq", icon: "❓" },
-  { name: "Settings", href: "/admin/settings", icon: "⚙️" },
-  { name: "Contact Info", href: "/admin/contact", icon: "📞" },
-  { name: "Users", href: "/admin/users", icon: "👥" },
+  { name: "Home", href: "/admin" },
+  { name: "Site Info", href: "/admin/settings" },
+  { name: "Programs", href: "/admin/programs" },
+  { name: "Facilities", href: "/admin/facilities" },
+  { name: "Testimonials", href: "/admin/testimonials" },
+  { name: "FAQ", href: "/admin/faq" },
 ]
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -50,7 +48,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                           : "text-gray-300 hover:bg-gray-700 hover:text-white"
                       }`}
                     >
-                      <span className="mr-3 text-lg">{item.icon}</span>
                       {item.name}
                     </Link>
                   )

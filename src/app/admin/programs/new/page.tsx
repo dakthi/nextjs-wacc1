@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
+import FileUpload from "@/components/FileUpload"
 import Link from "next/link"
 
 interface Schedule {
@@ -361,17 +362,17 @@ export default function NewProgram() {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-                      Image URL
-                    </label>
-                    <input
-                      type="url"
-                      name="imageUrl"
-                      id="imageUrl"
-                      value={formData.imageUrl}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                      placeholder="/img/program-poster.jpg"
+                    <FileUpload
+                      onFileSelect={(mediaItem) => {
+                        if (mediaItem.filePath) {
+                          setFormData(prev => ({ ...prev, imageUrl: mediaItem.filePath }))
+                        } else {
+                          setFormData(prev => ({ ...prev, imageUrl: '' }))
+                        }
+                      }}
+                      currentImage={formData.imageUrl}
+                      label="Program Image"
+                      accept="image/*"
                     />
                   </div>
                 </div>

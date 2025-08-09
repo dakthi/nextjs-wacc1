@@ -122,7 +122,7 @@ export default function ProgramsManagement() {
             </div>
             <Link
               href="/admin/programs/new"
-              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
             >
               Add New Program
             </Link>
@@ -241,7 +241,7 @@ export default function ProgramsManagement() {
               {!searchTerm && !filterCategory && (
                 <Link
                   href="/admin/programs/new"
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
                 >
                   Add New Program
                 </Link>

@@ -140,7 +140,7 @@ export function BookingSystemWrapper() {
             <div className="mt-8 pt-6 border-t">
               <button
                 onClick={handleReset}
-                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-md transition-colors"
+                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-md transition-colors uppercase"
               >
                 Make Another Booking
               </button>
@@ -275,7 +275,7 @@ export function BookingSystemWrapper() {
               <div className="space-y-3">
                 <button
                   onClick={() => handleFacilitySelect(facility, 'calendar')}
-                  className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center space-x-2 uppercase"
                 >
                   <Calendar className="w-5 h-5" />
                   <span>Book with Calendar</span>
@@ -283,7 +283,7 @@ export function BookingSystemWrapper() {
                 
                 <button
                   onClick={() => handleFacilitySelect(facility, 'form')}
-                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center space-x-2"
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-md transition-colors flex items-center justify-center space-x-2 uppercase"
                 >
                   <Mail className="w-5 h-5" />
                   <span>Traditional Form</span>

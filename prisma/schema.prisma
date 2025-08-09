@@ -242,3 +242,65 @@ model bookings {
   updated_at        DateTime
   facilities        Facility @relation(fields: [facility_id], references: [id])
 }
+
+model Note {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notes")
+}
+
+model HomepageContent {
+  id                          Int      @id @default(autoincrement())
+  // Hero Section
+  heroTitle                  String?   @map("hero_title")
+  heroSubtitle               String?   @map("hero_subtitle")
+  heroDescription            String?   @map("hero_description")
+  heroVideoUrl               String?   @map("hero_video_url")
+  heroButtonText             String?   @map("hero_button_text")
+  heroButtonLink             String?   @map("hero_button_link")
+  
+  // Split Banner
+  bannerProgramsTitle        String?   @map("banner_programs_title")
+  bannerProgramsSubtitle     String?   @map("banner_programs_subtitle")
+  bannerProgramsImage        String?   @map("banner_programs_image")
+  bannerFacilitiesTitle      String?   @map("banner_facilities_title")
+  bannerFacilitiesSubtitle   String?   @map("banner_facilities_subtitle")
+  
+  // Community Impact Section
+  communityPretitle          String?   @map("community_pretitle")
+  communityTitle             String?   @map("community_title")
+  communityDescription       String?   @map("community_description")
+  
+  // About Us Section
+  aboutTitle                 String?   @map("about_title")
+  aboutDescription           String?   @map("about_description")
+  aboutButtonText            String?   @map("about_button_text")
+  aboutButtonLink            String?   @map("about_button_link")
+  
+  // Facilities Section
+  facilitiesTitle            String?   @map("facilities_title")
+  facilitiesDescription      String?   @map("facilities_description")
+  facilitiesContact          String?   @map("facilities_contact")
+  facilitiesSectionHeading   String?   @map("facilities_section_heading")
+  
+  // Location Section
+  locationTitle              String?   @map("location_title")
+  locationDescription        String?   @map("location_description")
+  locationContact            String?   @map("location_contact")
+  locationSectionHeading     String?   @map("location_section_heading")
+  locationImage              String?   @map("location_image")
+  
+  // Programs Section
+  programsSectionTitle       String?   @map("programs_section_title")
+  programsViewAllText        String?   @map("programs_view_all_text")
+  
+  createdAt                  DateTime  @default(now()) @map("created_at")
+  updatedAt                  DateTime  @updatedAt @map("updated_at")
+
+  @@map("homepage_content")
+}

@@ -341,7 +341,7 @@ export default function BookingCalendar({ facility, onBookingSelect }: BookingCa
 
                         <button
                           onClick={handleProceedToBooking}
-                          className="w-full mt-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors"
+                          className="w-full mt-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors uppercase"
                         >
                           Proceed to Booking
                         </button>

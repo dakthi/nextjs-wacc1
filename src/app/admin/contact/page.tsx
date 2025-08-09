@@ -142,7 +142,7 @@ export default function ContactInfoManagement() {
             </div>
             <button
               onClick={() => setIsCreating(true)}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
             >
               Add Contact Info
             </button>
@@ -207,7 +207,7 @@ export default function ContactInfoManagement() {
               <p className="text-gray-500 mb-4">Add contact details to display throughout your website.</p>
               <button
                 onClick={() => setIsCreating(true)}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
               >
                 Add Contact Info
               </button>

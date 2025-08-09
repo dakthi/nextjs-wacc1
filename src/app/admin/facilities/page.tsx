@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
+import FileUpload from "@/components/FileUpload"
 
 export const dynamic = 'force-dynamic'
 
@@ -100,6 +101,19 @@ export default function FacilitiesManagement() {
                 <div className="px-6 py-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
+                      {facility.imageUrl && (
+                        <div className="mb-4">
+                          <img
+                            src={facility.imageUrl}
+                            alt={facility.name}
+                            className="w-full h-48 object-cover rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement
+                              target.style.display = 'none'
+                            }}
+                          />
+                        </div>
+                      )}
                       <h3 className="text-lg font-medium text-gray-900">{facility.name}</h3>
                       {facility.subtitle && (
                         <p className="text-sm text-gray-500 mt-1">{facility.subtitle}</p>
@@ -308,13 +322,31 @@ function FacilityEditForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Image URL</label>
-          <input
-            type="url"
-            name="imageUrl"
-            value={formData.imageUrl || ''}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+          <label className="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+          {formData.imageUrl && (
+            <div className="mb-4">
+              <img
+                src={formData.imageUrl}
+                alt={formData.name}
+                className="w-full max-w-sm h-32 object-cover rounded-lg border border-gray-300"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement
+                  target.style.display = 'none'
+                }}
+              />
+            </div>
+          )}
+          <FileUpload
+            onFileSelect={(mediaItem) => {
+              if (mediaItem.filePath) {
+                setFormData(prev => ({ ...prev, imageUrl: mediaItem.filePath }))
+              } else {
+                setFormData(prev => ({ ...prev, imageUrl: '' }))
+              }
+            }}
+            currentImage={formData.imageUrl}
+            label="Upload New Image"
+            accept="image/*"
           />
         </div>
 

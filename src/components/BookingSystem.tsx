@@ -301,7 +301,7 @@ export function BookingForm({ bookingData, facility, onBack, onSuccess }: Bookin
             <button
               type="button"
               onClick={onBack}
-              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-md transition-colors"
+              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-md transition-colors uppercase"
             >
               Back to Calendar
             </button>
@@ -309,7 +309,7 @@ export function BookingForm({ bookingData, facility, onBack, onSuccess }: Bookin
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed uppercase"
             >
               {loading ? (
                 <div className="flex items-center justify-center">

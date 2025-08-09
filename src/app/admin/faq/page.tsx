@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
+import FileUpload from "@/components/FileUpload"
 
 export const dynamic = 'force-dynamic'
 
@@ -124,7 +125,7 @@ export default function FaqManagement() {
             </div>
             <button
               onClick={() => setIsCreating(true)}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
             >
               Add New FAQ
             </button>
@@ -185,7 +186,7 @@ export default function FaqManagement() {
               <p className="text-gray-500 mb-4">Get started by adding your first FAQ item.</p>
               <button
                 onClick={() => setIsCreating(true)}
-                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
               >
                 Add New FAQ
               </button>
@@ -321,14 +322,17 @@ function FaqItemForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Image URL</label>
-          <input
-            type="url"
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleInputChange}
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-            placeholder="/img/faq-image.jpg"
+          <FileUpload
+            onFileSelect={(mediaItem) => {
+              if (mediaItem.filePath) {
+                setFormData(prev => ({ ...prev, imageUrl: mediaItem.filePath }))
+              } else {
+                setFormData(prev => ({ ...prev, imageUrl: '' }))
+              }
+            }}
+            currentImage={formData.imageUrl}
+            label="FAQ Image"
+            accept="image/*"
           />
         </div>
 

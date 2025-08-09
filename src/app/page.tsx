@@ -1,10 +1,11 @@
 import { Container } from "@/components/Container";
 import { SectionTitle } from "@/components/SectionTitle";
-import { Benefits } from "@/components/Benefits";
+import { BenefitFacilities } from "@/components/BenefitFacilities";
+import { BenefitLocation } from "@/components/BenefitLocation";
 import { Testimonials } from "@/components/Testimonials";
 import Faq from "@/components/Faq";
 import { VideoSelfHosted } from "@/components/VideoSelfHosted";
-import { WeeklyHighlights } from "@/components/WeeklyHighlights";
+import { SplitBanner } from "@/components/SplitBanner";
 import AboutUs from "@/components/AboutUs";
 import GoogleMap from "@/components/GoogleMap";
 import ProgramSchedule from "@/components/ProgramSchedule";
@@ -13,34 +14,8 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
 
-// Main highlights - programmes and facilities
-const mainHighlights = [
-  {
-    id: "regular-events",
-    title: "REGULAR PROGRAMMES",
-    subtitle: "Weekly activities for all ages and interests",
-    description: "From Stay & Play sessions and fitness classes to martial arts and educational programmes",
-    image: "/img/poster-stayandplay.jpeg",
-    buttonText: "VIEW PROGRAMMES",
-    buttonLink: "/programs",
-    features: "15+ weekly programmes",
-  },
-  {
-    id: "room-hire",
-    title: "ROOM HIRE",
-    subtitle: "Flexible spaces for your events",
-    description: "Sustainable facilities with LED lighting and energy-efficient systems, perfect for events, parties, meetings, and community gatherings",
-    image: "/img/80-chairs.jpeg",
-    buttonText: "BOOK NOW",
-    buttonLink: "/facilities",
-    features: "From £15/hour",
-  },
-];
-
-// This will be replaced with dynamic data
-
-// Benefits data for WACC
-const benefitOne = {
+// Static fallback if no dynamic facilities are available
+const fallbackBenefitOne = {
   title: "Modern Facilities for Every Occasion",
   desc: "Our centre offers versatile spaces perfect for community events, fitness classes, children's parties, and group meetings.",
   image: "/img/80-chairs.jpeg",
@@ -63,28 +38,6 @@ const benefitOne = {
   ],
 };
 
-const benefitTwo = {
-  title: "Convenient Location & Access",
-  desc: "Located in Churchill Gardens, West Acton, we're easily accessible by public transport and offer onsite parking.",
-  image: "/img/entrance.jpeg",
-  bullets: [
-    {
-      title: "West Acton Station",
-      desc: "Just minutes from West Acton Underground station on the Central line",
-      icon: "●",
-    },
-    {
-      title: "Bus Routes",
-      desc: "Served by bus 218 for easy access from across London",
-      icon: "●",
-    },
-    {
-      title: "Private On-site Parking",
-      desc: "Private parking available for visitors and event attendees",
-      icon: "●",
-    },
-  ],
-};
 
 
 export default async function Home() {
@@ -102,6 +55,56 @@ export default async function Home() {
     take: 6,
     orderBy: { createdAt: 'desc' }
   });
+
+  // Fetch facilities for dynamic benefits section
+  const facilities = await prisma.facility.findMany({
+    where: { active: true },
+    orderBy: { createdAt: 'asc' },
+    take: 3
+  });
+
+  // Fetch active programs for split banner
+  const activePrograms = await prisma.program.findMany({
+    where: { active: true },
+    include: {
+      schedules: {
+        where: { active: true },
+        orderBy: { id: 'asc' }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 1
+  });
+
+  // Create dynamic split banner data
+  const splitBannerData = [
+    // Programs section
+    {
+      id: "programs",
+      title: "REGULAR PROGRAMMES",
+      subtitle: "Weekly activities for all ages and interests",
+      description: activePrograms.length > 0 
+        ? `Join our vibrant community with programmes including ${activePrograms[0].title}${activePrograms[0].ageGroup ? ` for ${activePrograms[0].ageGroup}` : ''}. From fitness classes to educational sessions, there's something for everyone.`
+        : "From Stay & Play sessions and fitness classes to martial arts and educational programmes for all ages and interests",
+      image: "/img/poster-stayandplay.jpeg",
+      buttonText: "VIEW PROGRAMMES",
+      buttonLink: "/programs",
+      features: activePrograms.length > 0 ? `${featuredPrograms.length}+ programmes available` : "15+ weekly programmes",
+    },
+    // Facilities section  
+    {
+      id: "facilities",
+      title: "ROOM HIRE",
+      subtitle: "Flexible spaces for your events",
+      description: facilities.length > 0
+        ? `Our ${facilities.length} professionally managed spaces offer flexible solutions for events, meetings, and community gatherings. ${facilities[0]?.name || 'Main facilities'} available${facilities[0]?.hourlyRate ? ` from £${facilities[0].hourlyRate}/hour` : ' at competitive rates'}.`
+        : "Sustainable facilities with LED lighting and energy-efficient systems, perfect for events, parties, meetings, and community gatherings",
+      image: facilities.find(f => f.imageUrl)?.imageUrl || "/img/80-chairs.jpeg",
+      buttonText: "BOOK NOW",
+      buttonLink: "/facilities",
+      features: facilities.length > 0 && facilities[0]?.hourlyRate ? `From £${facilities[0].hourlyRate}/hour` : "From £15/hour",
+    },
+  ];
 
   // Community stats data using settings
   const communityStats = [
@@ -166,11 +169,12 @@ export default async function Home() {
     }
   ] : [];
 
+
   return (
     <div>
-      {/* Test 3: Hero + WeeklyHighlights + Community Stats */}
+      {/* Hero + Split Banner */}
       <VideoSelfHosted settings={settings} />
-      <WeeklyHighlights highlights={mainHighlights} />
+      <SplitBanner sections={splitBannerData} />
       
       {/* Community Impact Stats */}
       <Container>
@@ -183,13 +187,13 @@ export default async function Home() {
           to create a vibrant, supportive community.
         </SectionTitle>
 
-        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4 mt-16">
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mt-8 sm:mt-16">
           {communityStats.map((item, index) => (
-            <div key={index} className="bg-white border border-gray-200 rounded-lg p-6 text-center shadow-sm">
-              <p className="text-3xl font-heading font-bold text-primary-600 mb-2">
+            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 text-center shadow-sm">
+              <p className="text-2xl sm:text-3xl font-heading font-bold text-primary-600 mb-1 sm:mb-2">
                 {item.title}
               </p>
-              <p className="text-gray-800 font-medium">
+              <p className="text-sm sm:text-base text-gray-800 font-medium">
                 {item.desc}
               </p>
             </div>
@@ -201,20 +205,107 @@ export default async function Home() {
       <AboutUs />
 
       {/* Facilities Benefits */}
-      <Benefits data={benefitOne} />
-      <Benefits imgPos="right" data={benefitTwo} />
+      <BenefitFacilities
+        title="Modern Facilities for Every Occasion"
+        description={`Discover our ${facilities.length > 0 ? facilities.length : 3} professionally managed spaces, offering flexible solutions for events, meetings, fitness classes, and community gatherings. Each facility is maintained to the highest standards with modern amenities.`}
+        contact={`For bookings and enquiries, contact us at ${settings.contact_email} or call ${settings.contact_phone}`}
+        sectionHeading="Our Available Spaces"
+        facilities={facilities.length > 0 ? facilities.map((facility: any) => ({
+          id: facility.id,
+          name: facility.name,
+          subtitle: facility.subtitle,
+          description: facility.description,
+          capacity: facility.capacity,
+          dimensions: facility.dimensions,
+          hourlyRate: facility.hourlyRate,
+          features: facility.features,
+          imageUrl: facility.imageUrl
+        })) : [
+          {
+            id: 1,
+            name: "Main Hall",
+            subtitle: "Large community space",
+            description: "Perfect for events, classes, and gatherings",
+            capacity: 120,
+            dimensions: "9.81m × 12.64m",
+            hourlyRate: 25,
+            features: ["Sound system", "Lighting", "Kitchen access"],
+            imageUrl: "/img/80-chairs.jpeg"
+          },
+          {
+            id: 2,
+            name: "Small Hall", 
+            subtitle: "Intimate meeting space",
+            description: "Ideal for small groups and workshops",
+            capacity: 15,
+            dimensions: "4.26m × 6.20m",
+            hourlyRate: 15,
+            features: ["Projector", "Tables", "Chairs"],
+            imageUrl: "/img/entrance.jpeg"
+          },
+          {
+            id: 3,
+            name: "Kitchen",
+            subtitle: "Catering facilities",
+            description: "Fully equipped for event catering",
+            capacity: 10,
+            dimensions: "Modern layout",
+            hourlyRate: 10,
+            features: ["Sink", "Power outlets", "Seating area"],
+            imageUrl: "/img/poster-stayandplay.jpeg"
+          }
+        ]}
+        viewAllHref="/facilities"
+      />
+      
+      <BenefitLocation
+        title="Convenient Location & Access"
+        description="Located in Churchill Gardens, West Acton, we're easily accessible by public transport and offer onsite parking. Our central location makes us the perfect hub for West London community activities."
+        contact="Find us at Churchill Gardens, West Acton, London W3 0PG"
+        sectionHeading="Getting Here"
+        image="/img/entrance.jpeg"
+        benefits={[
+          {
+            title: "West Acton Station",
+            desc: "Just minutes from West Acton Underground station on the Central line, providing direct access to Central London",
+            icon: "●"
+          },
+          {
+            title: "Bus Routes",
+            desc: "Served by bus 218 and other local routes for easy access from across London and surrounding areas",
+            icon: "●"
+          },
+          {
+            title: "Private On-site Parking",
+            desc: "Free private parking available for visitors and event attendees, with disabled access spaces",
+            icon: "●"
+          }
+        ]}
+        buttons={[
+          {
+            label: "Get Directions",
+            href: "https://maps.google.com/?q=Churchill+Gardens+West+Acton+London+W3+0PG",
+            variant: "primary" as const
+          },
+          {
+            label: "Contact Us",
+            href: "/contact",
+            variant: "secondary" as const
+          }
+        ]}
+      />
 
       {/* Featured Programs Preview */}
       {programScheduleSections.length > 0 && (
-        <Container className="py-16">
+        <Container className="py-8 sm:py-16">
           <ProgramSchedule
             title="Featured Programmes This Week"
             sections={programScheduleSections}
           />
-          <div className="text-center mt-8">
+          <div className="text-center mt-6 sm:mt-8">
             <a
               href="/programs"
-              className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-lg text-lg uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg"
+              className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg text-base sm:text-lg uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               View All Programmes
             </a>
