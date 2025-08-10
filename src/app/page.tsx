@@ -10,7 +10,7 @@ import AboutUs from "@/components/AboutUs";
 import GoogleMap from "@/components/GoogleMap";
 import ProgramSchedule from "@/components/ProgramSchedule";
 import { getSettings } from "@/lib/settings";
-import { prisma } from "@/lib/prisma";
+import { getFeaturedPrograms, getActiveFacilities, getActivePrograms } from "@/lib/actions";
 import { processFacilityImage } from "@/lib/image-fallback";
 import { generateLocalBusinessStructuredData, generateOrganizationStructuredData } from "@/lib/seo";
 
@@ -45,50 +45,10 @@ const fallbackBenefitOne = {
 export default async function Home() {
   const settings = await getSettings();
   
-  let featuredPrograms: any[] = []
-  let facilities: any[] = []
-  let activePrograms: any[] = []
-  
-  try {
-    // Only fetch from database if DATABASE_URL is available
-    if (process.env.DATABASE_URL) {
-      // Fetch some programmes for the programme preview
-      featuredPrograms = await prisma.program.findMany({
-        where: { active: true },
-        include: {
-          schedules: {
-            where: { active: true },
-            orderBy: { id: 'asc' }
-          }
-        },
-        take: 6,
-        orderBy: { createdAt: 'desc' }
-      });
-
-      // Fetch facilities for dynamic benefits section
-      facilities = await prisma.facility.findMany({
-        where: { active: true },
-        orderBy: { createdAt: 'asc' },
-        take: 3
-      });
-
-      // Fetch active programs for split banner
-      activePrograms = await prisma.program.findMany({
-        where: { active: true },
-        include: {
-          schedules: {
-            where: { active: true },
-            orderBy: { id: 'asc' }
-          }
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 1
-      });
-    }
-  } catch (error) {
-    console.error('Error fetching dynamic content:', error)
-    // Will use fallback data below
-  }
+  // Fetch data using server actions
+  const featuredPrograms = await getFeaturedPrograms()
+  const facilities = await getActiveFacilities(3)
+  const activePrograms = await getActivePrograms(1)
 
   // Create dynamic split banner data
   const splitBannerData = [

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getFacilities } from "@/lib/actions";
 import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { Container } from "@/components/Container";
 import { SectionTitle } from "@/components/SectionTitle";
@@ -104,21 +104,8 @@ const facilityImages = [
 ];
 
 export default async function Facilities() {
-  let facilities: any[] = []
-  
-  try {
-    // Only fetch from database if DATABASE_URL is available
-    if (process.env.DATABASE_URL) {
-      // Fetch facilities from database
-      facilities = await prisma.facility.findMany({
-        where: { active: true },
-        orderBy: { createdAt: 'asc' }
-      });
-    }
-  } catch (error) {
-    console.error('Error fetching facilities data:', error)
-    // Will use fallback data below
-  }
+  // Fetch facilities using server action
+  const facilities = await getFacilities()
 
 
   // Process facilities for card display
@@ -323,10 +310,10 @@ export default async function Facilities() {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2 text-sm">Features</h4>
                     <ul className="space-y-1 text-xs text-gray-600">
-                      {facility.features.slice(0, 4).map((feature: string, idx: number) => (
+                      {facility.features.slice(0, 4).map((feature, idx) => (
                         <li key={idx} className="flex items-center">
                           <span className="w-1 h-1 bg-primary-600 rounded-full mr-2 flex-shrink-0"></span>
-                          <span className="leading-tight">{feature}</span>
+                          <span className="leading-tight">{String(feature)}</span>
                         </li>
                       ))}
                     </ul>
