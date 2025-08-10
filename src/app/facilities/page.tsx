@@ -7,23 +7,29 @@ import ServicesMenu from "@/components/ServicesMenu";
 import { GoogleMap } from "@/components/GoogleMap";
 import BookingForm from "@/components/BookingForm";
 import { processFacilityImage } from "@/lib/image-fallback";
+import { generateSEOMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/settings";
 
 export async function generateMetadata() {
-  const facilities = await prisma.facility.findMany({
-    where: { active: true },
-    orderBy: { createdAt: 'asc' },
-    take: 2
+  return generateSEOMetadata({
+    title: "Facilities & Room Hire",
+    description: "Book our modern facilities for events, classes, and gatherings. Main Hall (120 capacity), Small Hall, and fully equipped Kitchen available from £15/hour. Private parking included.",
+    url: "/facilities",
+    keywords: [
+      "hall hire",
+      "room rental",
+      "venue hire",
+      "West Acton facilities",
+      "event space",
+      "meeting rooms",
+      "Main Hall hire",
+      "Small Hall rental",
+      "kitchen facilities",
+      "party venue",
+      "conference space",
+      "community venue"
+    ]
   });
-  
-  const settings = await getSettings();
-  
-  return {
-    title: `Facilities & Room Hire | ${settings.site_title}`,
-    description: facilities.length > 0 
-      ? `Book our ${facilities.map(f => `${f.name} (${f.capacity || 'contact for'} capacity)`).join(' or ')} for your events, classes, and gatherings. ${facilities[0]?.hourlyRate ? `Starting from £${facilities[0].hourlyRate.toString()}/hour.` : 'Competitive rates.'} Sustainable facilities.`
-      : "Book our facilities for your events, classes, and gatherings. Competitive rates and sustainable facilities.",
-  };
 }
 
 // Facilities data
@@ -157,11 +163,21 @@ const facilityImages = [
 ];
 
 export default async function Facilities() {
-  // Fetch facilities from database
-  const facilities = await prisma.facility.findMany({
-    where: { active: true },
-    orderBy: { createdAt: 'asc' }
-  });
+  let facilities: any[] = []
+  
+  try {
+    // Only fetch from database if DATABASE_URL is available
+    if (process.env.DATABASE_URL) {
+      // Fetch facilities from database
+      facilities = await prisma.facility.findMany({
+        where: { active: true },
+        orderBy: { createdAt: 'asc' }
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching facilities data:', error)
+    // Will use fallback data below
+  }
 
   // Get main hall and small hall from database or use fallback
   const mainHall = facilities.find(f => f.name.toLowerCase().includes('main hall')) || null;

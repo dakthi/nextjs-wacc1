@@ -8,7 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Providers from "@/components/Providers";
 import ConditionalWrapper from "@/components/ConditionalWrapper";
-import { getSettings } from "@/lib/settings";
+import { generateSEOMetadata } from "@/lib/seo";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -18,12 +18,19 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings();
-  
-  return {
-    title: `${settings.site_title} | Community Hub in Acton, London`,
-    description: settings.site_description,
-  };
+  return generateSEOMetadata({
+    url: '/',
+    keywords: [
+      'community centre West Acton',
+      'hall hire Acton',
+      'community hub London',
+      'facilities rental',
+      'local events',
+      'community programs',
+      'meeting rooms Acton',
+      'West London venue'
+    ]
+  });
 }
 
 export default function RootLayout({

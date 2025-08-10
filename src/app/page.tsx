@@ -12,6 +12,7 @@ import ProgramSchedule from "@/components/ProgramSchedule";
 import { getSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 import { processFacilityImage } from "@/lib/image-fallback";
+import { generateLocalBusinessStructuredData, generateOrganizationStructuredData } from "@/lib/seo";
 
 export const dynamic = 'force-dynamic';
 
@@ -44,38 +45,50 @@ const fallbackBenefitOne = {
 export default async function Home() {
   const settings = await getSettings();
   
-  // Fetch some programmes for the programme preview
-  const featuredPrograms = await prisma.program.findMany({
-    where: { active: true },
-    include: {
-      schedules: {
+  let featuredPrograms: any[] = []
+  let facilities: any[] = []
+  let activePrograms: any[] = []
+  
+  try {
+    // Only fetch from database if DATABASE_URL is available
+    if (process.env.DATABASE_URL) {
+      // Fetch some programmes for the programme preview
+      featuredPrograms = await prisma.program.findMany({
         where: { active: true },
-        orderBy: { id: 'asc' }
-      }
-    },
-    take: 6,
-    orderBy: { createdAt: 'desc' }
-  });
+        include: {
+          schedules: {
+            where: { active: true },
+            orderBy: { id: 'asc' }
+          }
+        },
+        take: 6,
+        orderBy: { createdAt: 'desc' }
+      });
 
-  // Fetch facilities for dynamic benefits section
-  const facilities = await prisma.facility.findMany({
-    where: { active: true },
-    orderBy: { createdAt: 'asc' },
-    take: 3
-  });
-
-  // Fetch active programs for split banner
-  const activePrograms = await prisma.program.findMany({
-    where: { active: true },
-    include: {
-      schedules: {
+      // Fetch facilities for dynamic benefits section
+      facilities = await prisma.facility.findMany({
         where: { active: true },
-        orderBy: { id: 'asc' }
-      }
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 1
-  });
+        orderBy: { createdAt: 'asc' },
+        take: 3
+      });
+
+      // Fetch active programs for split banner
+      activePrograms = await prisma.program.findMany({
+        where: { active: true },
+        include: {
+          schedules: {
+            where: { active: true },
+            orderBy: { id: 'asc' }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 1
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching dynamic content:', error)
+    // Will use fallback data below
+  }
 
   // Create dynamic split banner data
   const splitBannerData = [
@@ -171,8 +184,54 @@ export default async function Home() {
   ] : [];
 
 
+  // Generate structured data
+  const localBusinessData = generateLocalBusinessStructuredData({
+    name: settings.site_title,
+    description: settings.site_description,
+    address: {
+      streetAddress: settings.address.split(',')[0] || 'Churchill Gardens',
+      addressLocality: 'West Acton',
+      addressRegion: 'London',
+      postalCode: 'W3 0PG',
+      addressCountry: 'GB',
+    },
+    telephone: settings.contact_phone,
+    email: settings.contact_email,
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://westactoncc.org.uk',
+    openingHours: ['Mo-Su 07:00-23:00'],
+    priceRange: '£-££',
+    amenityFeature: [
+      'WiFi',
+      'Private Parking',
+      'Wheelchair Access',
+      'Kitchen Facilities',
+      'Audio/Visual Equipment',
+      'Sound System',
+      'LED Lighting'
+    ],
+    image: [
+      processFacilityImage(facilities.find(f => f.imageUrl)?.imageUrl || null, facilities[0]?.name) || '/img/entrance.jpeg'
+    ]
+  });
+
+  const organizationData = generateOrganizationStructuredData(settings);
+
   return (
     <div>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(localBusinessData),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationData),
+        }}
+      />
+
       {/* Hero + Split Banner */}
       <Hero 
         settings={settings} 

@@ -4,15 +4,25 @@ import { SectionTitle } from "@/components/SectionTitle";
 import ContactForm from "@/components/ContactForm";
 import GoogleMap from "@/components/GoogleMap";
 import { prisma } from "@/lib/prisma";
+import { generateSEOMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/settings";
 
 export async function generateMetadata() {
-  const settings = await getSettings();
-  
-  return {
-    title: `Contact & Booking | ${settings.site_title}`,
-    description: `Get in touch with ${settings.site_title} for bookings, enquiries, and information. Located at ${settings.address}.`,
-  };
+  return generateSEOMetadata({
+    title: "Contact & Booking",
+    description: "Get in touch with West Acton Community Centre for hall bookings, programme enquiries, and general information. Located in Churchill Gardens, West Acton.",
+    url: "/contact",
+    keywords: [
+      "contact us",
+      "hall booking",
+      "enquiries",
+      "West Acton address",
+      "Churchill Gardens",
+      "community centre contact",
+      "facility hire",
+      "programme information"
+    ]
+  });
 }
 
 // Location and transport
@@ -60,18 +70,21 @@ export default async function Contact() {
   let openingHours: OpeningHours[] = []
   
   try {
-    // Direct database queries instead of API calls
-    contactInfoItems = await prisma.contactInfo.findMany({
-      where: { active: true },
-      orderBy: { displayOrder: 'asc' }
-    })
-    
-    openingHours = await prisma.openingHours.findMany({
-      where: { active: true },
-      orderBy: { id: 'asc' }
-    })
+    // Only fetch from database if DATABASE_URL is available
+    if (process.env.DATABASE_URL) {
+      contactInfoItems = await prisma.contactInfo.findMany({
+        where: { active: true },
+        orderBy: { displayOrder: 'asc' }
+      })
+      
+      openingHours = await prisma.openingHours.findMany({
+        where: { active: true },
+        orderBy: { id: 'asc' }
+      })
+    }
   } catch (error) {
     console.error('Failed to fetch CMS data:', error)
+    // Fallback to empty arrays which will use static data
   }
 
   // Create dynamic location info from contact CMS data

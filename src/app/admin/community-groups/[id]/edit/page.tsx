@@ -66,7 +66,7 @@ export default function EditCommunityGroup({ params }: { params: { id: string } 
 
   useEffect(() => {
     fetchGroup()
-  }, [])
+  }, [params.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchGroup = async () => {
     try {

@@ -1,13 +1,21 @@
 import AboutUs from "@/components/AboutUs";
-import { getSettings } from "@/lib/settings";
+import { generateSEOMetadata } from "@/lib/seo";
 
 export async function generateMetadata() {
-  const settings = await getSettings();
-  
-  return {
-    title: `About Us | ${settings.site_title}`,
-    description: `Learn about ${settings.site_title}'s mission, history, and commitment to serving our local community with ${settings.weekly_programs} programmes and sustainable facilities.`,
-  };
+  return generateSEOMetadata({
+    title: "About Us",
+    description: "Learn about West Acton Community Centre's mission, history, and commitment to serving our local community with 15+ programmes and sustainable facilities.",
+    url: "/about",
+    keywords: [
+      "about us",
+      "community centre history",
+      "West Acton mission",
+      "community values",
+      "local organisation",
+      "volunteer run",
+      "community impact"
+    ]
+  });
 }
 
 export default function About() {

@@ -3,6 +3,7 @@ import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { SectionTitle } from "@/components/SectionTitle";
 import ProgramSchedule from "@/components/ProgramSchedule";
 import { prisma } from "@/lib/prisma";
+import { generateSEOMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/settings";
 import { processProgramImage } from "@/lib/image-fallback";
 
@@ -16,12 +17,27 @@ interface CommunityGroup {
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
-  const settings = await getSettings();
-  
-  return {
-    title: `Programmes & Activities | ${settings.site_title}`,
-    description: `Join our ${settings.weekly_programs} weekly programmes including Stay & Play, Taekwondo, Zumba, Kumon, Judo, and cultural groups. Something for every age and interest.`,
-  };
+  return generateSEOMetadata({
+    title: "Programmes & Activities",
+    description: "Join our 15+ weekly programmes including Stay & Play, Taekwondo, Zumba, Kumon, Judo, English lessons, and cultural groups. Activities for all ages and interests.",
+    url: "/programs",
+    keywords: [
+      "programmes",
+      "activities",
+      "classes",
+      "Stay & Play",
+      "Taekwondo",
+      "Zumba",
+      "Kumon",
+      "Judo",
+      "English lessons",
+      "fitness classes",
+      "martial arts",
+      "children activities",
+      "adult education",
+      "cultural groups"
+    ]
+  });
 }
 
 // Category colors for visual organization
@@ -82,23 +98,34 @@ function getCategoryTitle(category: string): string {
 }
 
 export default async function Programs() {
-  // Fetch programmes from database
-  const programs = await prisma.program.findMany({
-    where: { active: true },
-    include: {
-      schedules: {
+  let programs: any[] = []
+  let communityGroups: CommunityGroup[] = []
+  
+  try {
+    // Only fetch from database if DATABASE_URL is available
+    if (process.env.DATABASE_URL) {
+      // Fetch programmes from database
+      programs = await prisma.program.findMany({
+        where: { active: true },
+        include: {
+          schedules: {
+            where: { active: true },
+            orderBy: { id: 'asc' }
+          }
+        },
+        orderBy: { createdAt: 'asc' }
+      })
+
+      // Fetch community groups from database
+      communityGroups = await prisma.communityGroup.findMany({
         where: { active: true },
         orderBy: { id: 'asc' }
-      }
-    },
-    orderBy: { createdAt: 'asc' }
-  })
-
-  // Fetch community groups from database
-  const communityGroups = await prisma.communityGroup.findMany({
-    where: { active: true },
-    orderBy: { id: 'asc' }
-  })
+      })
+    }
+  } catch (error) {
+    console.error('Error fetching programs data:', error)
+    // Will use fallback data below
+  }
 
   // Organize programmes for ProgramSchedule component
   const groupedPrograms = organizeProgramsForSchedule(programs)
