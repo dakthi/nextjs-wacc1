@@ -2,20 +2,25 @@
  * Image fallback utilities for handling missing uploaded images
  */
 
-import { existsSync } from 'fs'
-import path from 'path'
-
 /**
  * Check if an uploaded image exists on disk
+ * Note: This function only works on the server side
  */
 export function imageExists(imagePath: string): boolean {
+  if (typeof window !== 'undefined') {
+    // Client-side: assume image exists, will handle errors in component
+    return true
+  }
+  
   if (!imagePath || !imagePath.startsWith('/uploads/')) {
     return false
   }
   
   try {
+    const fs = require('fs')
+    const path = require('path')
     const fullPath = path.join(process.cwd(), 'public', imagePath)
-    return existsSync(fullPath)
+    return fs.existsSync(fullPath)
   } catch {
     return false
   }
@@ -24,7 +29,7 @@ export function imageExists(imagePath: string): boolean {
 /**
  * Get a fallback image path for facility images
  */
-export function getFacilityFallbackImage(facilityName?: string): string {
+export function getFacilityFallbackImage(facilityName?: string | null): string {
   const facilityFallbacks: Record<string, string> = {
     'main hall': '/img/80-chairs.jpeg',
     'small hall': '/img/entrance.jpeg', 
@@ -32,7 +37,7 @@ export function getFacilityFallbackImage(facilityName?: string): string {
     'default': '/img/80-chairs.jpeg'
   }
   
-  if (!facilityName) return facilityFallbacks.default
+  if (!facilityName) return facilityFallbacks.default!
   
   const key = facilityName.toLowerCase()
   
@@ -42,13 +47,13 @@ export function getFacilityFallbackImage(facilityName?: string): string {
     }
   }
   
-  return facilityFallbacks.default
+  return facilityFallbacks.default!
 }
 
 /**
  * Get a fallback image path for program images
  */
-export function getProgramFallbackImage(programName?: string): string {
+export function getProgramFallbackImage(programName?: string | null): string {
   const programFallbacks: Record<string, string> = {
     'stay': '/img/poster-stayandplay.jpeg',
     'play': '/img/poster-stayandplay.jpeg',
@@ -65,7 +70,7 @@ export function getProgramFallbackImage(programName?: string): string {
     'default': '/img/poster-stayandplay.jpeg'
   }
   
-  if (!programName) return programFallbacks.default
+  if (!programName) return programFallbacks.default!
   
   const key = programName.toLowerCase()
   
@@ -75,7 +80,7 @@ export function getProgramFallbackImage(programName?: string): string {
     }
   }
   
-  return programFallbacks.default
+  return programFallbacks.default!
 }
 
 /**

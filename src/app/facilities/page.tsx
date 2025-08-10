@@ -7,11 +7,24 @@ import ServicesMenu from "@/components/ServicesMenu";
 import { GoogleMap } from "@/components/GoogleMap";
 import BookingForm from "@/components/BookingForm";
 import { processFacilityImage } from "@/lib/image-fallback";
+import { getSettings } from "@/lib/settings";
 
-export const metadata = {
-  title: "Facilities & Room Hire | West Acton Community Centre",
-  description: "Book our Main Hall (120 capacity) or Small Hall (15 capacity) for your events, classes, and gatherings. Competitive rates and sustainable facilities.",
-};
+export async function generateMetadata() {
+  const facilities = await prisma.facility.findMany({
+    where: { active: true },
+    orderBy: { createdAt: 'asc' },
+    take: 2
+  });
+  
+  const settings = await getSettings();
+  
+  return {
+    title: `Facilities & Room Hire | ${settings.site_title}`,
+    description: facilities.length > 0 
+      ? `Book our ${facilities.map(f => `${f.name} (${f.capacity || 'contact for'} capacity)`).join(' or ')} for your events, classes, and gatherings. ${facilities[0]?.hourlyRate ? `Starting from £${facilities[0].hourlyRate.toString()}/hour.` : 'Competitive rates.'} Sustainable facilities.`
+      : "Book our facilities for your events, classes, and gatherings. Competitive rates and sustainable facilities.",
+  };
+}
 
 // Facilities data
 const mainHallData = {

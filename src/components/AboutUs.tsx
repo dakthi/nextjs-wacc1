@@ -1,14 +1,16 @@
 import React from "react";
 import { Container } from "@/components/Container";
+import { getSettings } from "@/lib/settings";
 
-const AboutUs = () => {
+const AboutUs = async () => {
+  const settings = await getSettings();
   return (
     <div className="bg-white">
       <Container>
         <section className="py-16">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-600 mb-6 uppercase tracking-tight">
-              About West Acton Community Centre
+              About {settings.site_title}
             </h2>
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
               Serving our local community with pride and dedication since our establishment
@@ -22,12 +24,12 @@ const AboutUs = () => {
               </h3>
               <p className="text-lg text-gray-800 leading-relaxed mb-6">
                 Located in Churchill Gardens, we are more than just a venue — we are the heart of West Acton, 
-                bringing together over <strong>2,000 residents</strong> through education, leisure, and recreational programs.
+                bringing together over <strong>{settings.residents_served} residents</strong> through education, leisure, and recreational programs.
               </p>
               <p className="text-lg text-gray-800 leading-relaxed">
                 Our mission is simple: <strong>to improve wellbeing through community connection</strong>. Whether you're looking 
-                for a space to host your event, want to join one of our 15+ weekly programs, or simply need a 
-                place where you belong, WACC is here for you.
+                for a space to host your event, want to join one of our {settings.weekly_programs} weekly programs, or simply need a 
+                place where you belong, {settings.site_title} is here for you.
               </p>
             </div>
 

@@ -11,7 +11,7 @@ interface FacilityCard {
   dimensions?: string;
   hourlyRate?: number;
   features?: string[];
-  imageUrl?: string;
+  imageUrl?: string | null;
 }
 
 interface BenefitFacilitiesProps {

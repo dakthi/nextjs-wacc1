@@ -148,10 +148,29 @@ model MediaItem {
 }
 
 model CommunityGroup {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String?
-  active      Boolean @default(true)
+  id           Int      @id @default(autoincrement())
+  title        String   // Keep original field name to maintain compatibility
+  name         String?  // Add as optional for now
+  description  String?
+  category     String?  @default("Cultural & Social")
+  meetingTime  String?  @map("meeting_time")
+  meetingDay   String?  @map("meeting_day")
+  contactName  String?  @map("contact_name")
+  contactEmail String?  @map("contact_email")
+  contactPhone String?  @map("contact_phone")
+  imageUrl     String?  @map("image_url")
+  websiteUrl   String?  @map("website_url")
+  facebookUrl  String?  @map("facebook_url")
+  instagramUrl String?  @map("instagram_url")
+  memberCount  Int?     @map("member_count")
+  ageGroup     String?  @map("age_group")
+  language     String?
+  fees         String?
+  featured     Boolean  @default(false)
+  displayOrder Int      @default(0) @map("display_order")
+  active       Boolean  @default(true)
+  createdAt    DateTime? @default(now()) @map("created_at")
+  updatedAt    DateTime? @updatedAt @map("updated_at")
 
   @@map("community_groups")
 }

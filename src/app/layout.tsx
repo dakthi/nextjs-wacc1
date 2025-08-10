@@ -7,6 +7,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Providers from "@/components/Providers";
+import ConditionalWrapper from "@/components/ConditionalWrapper";
 import { getSettings } from "@/lib/settings";
 
 const inter = Inter({ 
@@ -38,11 +39,9 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans bg-white text-gray-900`}>
         <Providers>
-          <Navbar />
-          <main className="min-h-screen">
+          <ConditionalWrapper>
             {children}
-          </main>
-          <Footer />
+          </ConditionalWrapper>
         </Providers>
       </body>
     </html>
