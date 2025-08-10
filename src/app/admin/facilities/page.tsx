@@ -338,10 +338,10 @@ function FacilityEditForm({
           )}
           <FileUpload
             onFileSelect={(mediaItem) => {
-              if (mediaItem.filePath) {
+              if (mediaItem.filePath && mediaItem.filePath !== '') {
                 setFormData(prev => ({ ...prev, imageUrl: mediaItem.filePath }))
               } else {
-                setFormData(prev => ({ ...prev, imageUrl: '' }))
+                setFormData(prev => ({ ...prev, imageUrl: null }))
               }
             }}
             currentImage={formData.imageUrl}

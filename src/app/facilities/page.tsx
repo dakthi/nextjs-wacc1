@@ -6,6 +6,7 @@ import { SectionTitle } from "@/components/SectionTitle";
 import ServicesMenu from "@/components/ServicesMenu";
 import { GoogleMap } from "@/components/GoogleMap";
 import BookingForm from "@/components/BookingForm";
+import { processFacilityImage } from "@/lib/image-fallback";
 
 export const metadata = {
   title: "Facilities & Room Hire | West Acton Community Centre",
@@ -142,44 +143,66 @@ const facilityImages = [
   }
 ];
 
-// Facility services and pricing data
-const facilityServicesData = {
-  title: "Room Hire & Services",
-  sections: [
-    {
-      title: "Hall Rentals",
-      items: [
-        {
-          name: "Main Hall",
-          subtitle: "120 Person Capacity • 9.81m × 12.64m",
-          description: "Spacious hall with outside paved area access, perfect for large events, parties, weddings, funerals, NHS courses, and community gatherings.",
-          price: "On Request",
-          duration: "Competitive rates vary by event type",
-          features: [
-            "120 person capacity",
-            "Outside paved area access",
-            "Kitchen facilities included",
-            "10 large rectangular tables",
-            "80 chairs included",
-            "Professional cleaning included"
+export default async function Facilities() {
+  // Fetch facilities from database
+  const facilities = await prisma.facility.findMany({
+    where: { active: true },
+    orderBy: { createdAt: 'asc' }
+  });
+
+  // Get main hall and small hall from database or use fallback
+  const mainHall = facilities.find(f => f.name.toLowerCase().includes('main hall')) || null;
+  const smallHall = facilities.find(f => f.name.toLowerCase().includes('small hall')) || null;
+
+  // Create dynamic facility services data
+  const facilityServicesData = {
+    title: "Room Hire & Services",
+    sections: [
+      {
+        title: "Hall Rentals",
+        items: facilities.length > 0 ? facilities.map(facility => ({
+          name: facility.name,
+          subtitle: `${facility.capacity || 'Contact for capacity'} Person Capacity • ${facility.dimensions || 'Contact for dimensions'}`,
+          description: facility.description || "Contact us for more information about this facility.",
+          price: facility.hourlyRate ? `£${facility.hourlyRate}/hour` : "Contact for pricing",
+          duration: facility.hourlyRate ? "Competitive rates for longer bookings" : "",
+          features: facility.features ? facility.features as string[] : [
+            "Professional space",
+            "Maintained to high standards",
+            "Booking support included"
           ]
-        },
-        {
-          name: "Small Hall",
-          subtitle: "15 Person Capacity • 4.26m × 6.20m",
-          description: "Intimate space ideal for small group classes, meetings, workshops, and community group gatherings.",
-          price: "Contact for pricing",
-          duration: "",
-          features: [
-            "15 person capacity",
-            "Perfect for workshops",
-            "Small group meetings",
-            "Regular class sessions",
-            "Comfortable environment"
-          ]
-        }
-      ]
-    },
+        })) : [
+          {
+            name: "Main Hall",
+            subtitle: "120 Person Capacity • 9.81m × 12.64m",
+            description: "Spacious hall with outside paved area access, perfect for large events, parties, weddings, funerals, NHS courses, and community gatherings.",
+            price: "On Request",
+            duration: "Competitive rates vary by event type",
+            features: [
+              "120 person capacity",
+              "Outside paved area access",
+              "Kitchen facilities included",
+              "10 large rectangular tables",
+              "80 chairs included",
+              "Professional cleaning included"
+            ]
+          },
+          {
+            name: "Small Hall",
+            subtitle: "15 Person Capacity • 4.26m × 6.20m",
+            description: "Intimate space ideal for small group classes, meetings, workshops, and community group gatherings.",
+            price: "Contact for pricing",
+            duration: "",
+            features: [
+              "15 person capacity",
+              "Perfect for workshops",
+              "Small group meetings",
+              "Regular class sessions",
+              "Comfortable environment"
+            ]
+          }
+        ]
+      },
     {
       title: "Additional Services",
       items: [
@@ -219,17 +242,74 @@ const facilityServicesData = {
   ]
 };
 
-export default function Facilities() {
+  // Create dynamic data for main hall
+  const dynamicMainHallData = mainHall ? {
+    title: `${mainHall.name} - Perfect for Large Events`,
+    desc: mainHall.description || "Our spacious Main Hall includes access to paved outside area and kitchen facilities. Ideal for parties, weddings, funerals, wakes, NHS courses, and community events.",
+    image: processFacilityImage(mainHall.imageUrl, mainHall.name) || "/img/80-chairs.jpeg",
+    bullets: [
+      {
+        title: mainHall.dimensions ? `${mainHall.dimensions} Space + Outside Paved Area` : "9.81m × 12.64m Space + Outside Paved Area",
+        desc: "Generous indoor space with additional outdoor paved area for extended events",
+        icon: "📏",
+      },
+      {
+        title: mainHall.capacity ? `${mainHall.capacity} Person Capacity` : "120 Person Capacity",
+        desc: "Accommodates large groups for community events, celebrations, and professional courses",
+        icon: "👥",
+      },
+      {
+        title: "Includes Kitchen Access",
+        desc: "Full kitchen facilities with fridge, kettle, microwave, and sink. No cooking allowed - outside catering welcome",
+        icon: "🍽️",
+      },
+      {
+        title: "Tables & Chairs Included",
+        desc: "10 large rectangular tables and 80 chairs included in hire price",
+        icon: "🪑",
+      },
+      {
+        title: mainHall.hourlyRate ? `From £${mainHall.hourlyRate}/hour` : "On Request Pricing",
+        desc: "Competitive rates varying by event type. Preferential rates for charities and regular bookings",
+        icon: "💷",
+      },
+    ],
+  } : mainHallData;
+
+  // Create dynamic data for small hall
+  const dynamicSmallHallData = smallHall ? {
+    title: `${smallHall.name} - Intimate Group Setting`,
+    desc: smallHall.description || "Our cozy Small Hall provides the perfect environment for small group classes, meetings, and intimate gatherings.",
+    image: processFacilityImage(smallHall.imageUrl, smallHall.name) || "/img/manager-office.jpeg",
+    bullets: [
+      {
+        title: smallHall.dimensions ? `${smallHall.dimensions} Space` : "4.26m × 6.20m Space",
+        desc: "Comfortable size perfect for focused group activities and small meetings",
+        icon: "📐",
+      },
+      {
+        title: smallHall.capacity ? `${smallHall.capacity} Person Capacity` : "15 Person Capacity",
+        desc: "Ideal for workshops, small classes, and community group meetings",
+        icon: "👤",
+      },
+      {
+        title: smallHall.hourlyRate ? `From £${smallHall.hourlyRate}/hour` : "Competitive Rates",
+        desc: "Affordable pricing for small group bookings and regular class sessions",
+        icon: "💶",
+      },
+    ],
+  } : smallHallData;
+
   return (
     <div>
       <TextOnlyHero 
         title="Facilities & Room Hire"
         subtitle="Modern, versatile spaces in the heart of West Acton"
-        backgroundImage="/img/80-chairs.jpeg"
+        backgroundImage={dynamicMainHallData.image}
       />
       
-      <Benefits data={mainHallData} />
-      <Benefits imgPos="right" data={smallHallData} />
+      <Benefits data={dynamicMainHallData} />
+      <Benefits imgPos="right" data={dynamicSmallHallData} />
 
 
       <Container>

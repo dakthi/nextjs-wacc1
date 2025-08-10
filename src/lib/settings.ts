@@ -25,6 +25,9 @@ export interface SiteSettings {
   opening_hours_details: string
   hero_subtitle: string
   hero_description: string
+  hero_background_image: string
+  hero_cta_button_text: string
+  hero_cta_button_link: string
   [key: string]: any
 }
 
@@ -62,7 +65,10 @@ export async function getSettings(): Promise<SiteSettings> {
       ['opening_hours_text', '7 days'],
       ['opening_hours_details', 'Open Monday to Sunday, 7am-11pm'],
       ['hero_subtitle', 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.'],
-      ['hero_description', 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.']
+      ['hero_description', 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.'],
+      ['hero_background_image', '/img/entrance.jpeg'],
+      ['hero_cta_button_text', 'EXPLORE OUR PROGRAMS'],
+      ['hero_cta_button_link', '/programs']
     ])
 
     // Override with database values

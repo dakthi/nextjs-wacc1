@@ -16,8 +16,6 @@ async function main() {
   await prisma.faqItem.deleteMany()
   await prisma.communityGroup.deleteMany()
   await prisma.siteSetting.deleteMany()
-  await prisma.note.deleteMany()
-  await prisma.homepageContent.deleteMany()
 
   console.log('🗑️ Cleared existing data')
 
@@ -368,33 +366,6 @@ async function main() {
 
   console.log('✅ Created site settings')
 
-  // Seed Notes
-  await prisma.note.createMany({
-    data: [
-      {
-        title: "Welcome to Homepage CMS",
-        content: "This is the new homepage content management system. You can now control all homepage elements including hero section, community stats, and more.\n\nRemember to update the hero background image seasonally!",
-        author: "admin@westactoncc.org.uk"
-      },
-      {
-        title: "Image Upload System",
-        content: "The media library is now working! Use the FileUpload components instead of entering URLs manually. All uploaded images are stored in /public/uploads/",
-        author: "admin@westactoncc.org.uk"
-      },
-      {
-        title: "Upcoming Events Planning",
-        content: "Plan to update homepage content for:\n- Summer programs showcase (July)\n- Back to school promotions (August)\n- Holiday room booking rush (December)\n\nKeep community stats updated monthly.",
-        author: "manager@westactoncc.org.uk"
-      },
-      {
-        title: "Database Migration Success",
-        content: "Successfully migrated Notes and Homepage Content tables to production. All CMS features are now fully functional and responsive on mobile devices.",
-        author: "admin@westactoncc.org.uk"
-      }
-    ]
-  })
-
-  console.log('✅ Created internal notes')
   console.log('🎉 Database seeded successfully!')
 }
 

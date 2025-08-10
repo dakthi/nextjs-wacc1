@@ -1,66 +1,101 @@
-import { Container } from "@/components/Container";
+import Image from "next/image";
 import { SiteSettings } from "@/lib/settings";
 
 interface HeroProps {
   settings?: SiteSettings;
+  backgroundImage?: string;
 }
 
-export const Hero = ({ settings }: HeroProps) => {
+export function Hero({ settings, backgroundImage }: HeroProps) {
   const siteTitle = settings?.site_title || 'West Acton Community Centre';
-  const heroSubtitle = settings?.hero_subtitle || 'Your local hub for education, leisure, and recreational programs. We serve over 2,000 residents in West Acton with 15+ regular programs every week.';
-  const heroDescription = settings?.hero_description || 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.';
-  const contactPhone = settings?.contact_phone || '020 8992 8899';
-  const address = settings?.address || 'Churchill Gardens, W3 0JN';
-  const bookingEnabled = settings?.booking_enabled ?? true;
+  const heroSubtitle = settings?.hero_subtitle || 'Your local hub bringing together 2,000+ residents through education, leisure, and recreational programs';
   const residentsServed = settings?.residents_served || '2,000+';
-  const openingHoursText = settings?.opening_hours_text || '7 days';
+  const weeklyPrograms = settings?.weekly_programs || '15+';
+  const openingDays = settings?.opening_hours_text || '7';
+  const mainHallCapacity = settings?.main_hall_capacity || '120';
   return (
-    <Container className="flex flex-wrap items-center py-10 lg:py-16">
-      {/* Text */}
-      <div className="w-full lg:w-1/2 px-4">
-        <div className="max-w-xl">
-          <h1 className="text-3xl font-bold text-green-950 tracking-tight leading-tight lg:text-4xl xl:text-5xl">
-            Welcome to {siteTitle}
+    <div className="relative w-full h-screen overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image
+          src={settings?.hero_background_image || backgroundImage || "/img/entrance.jpeg"}
+          alt={`${siteTitle} Hero Background`}
+          fill
+          className="object-cover"
+          priority
+        />
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
+
+      {/* Content Overlay */}
+      <div className="relative z-10 flex items-center justify-center h-full">
+        <div className="text-center text-white px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight">
+            <span className="block text-white drop-shadow-2xl">
+              {siteTitle}
+            </span>
           </h1>
-          <p className="mt-6 text-base text-green-950 leading-relaxed lg:text-lg font-medium">
+          
+          {/* Subtitle */}
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 text-gray-100 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
             {heroSubtitle}
           </p>
-          <p className="mt-4 text-base text-green-950 leading-relaxed lg:text-lg">
-            {heroDescription}
-          </p>
 
-          <div className="mt-6 space-x-4">
-            {bookingEnabled && (
-              <a
-                href="/facilities"
-                className="inline-block px-6 py-3 text-sm font-bold text-white bg-primary-950 rounded-lg hover:bg-primary-900 transition uppercase tracking-wide"
-              >
-                Book a Room
-              </a>
-            )}
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
+            <div className="text-center bg-black/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-400 mb-1">
+                {residentsServed}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-200 font-medium">
+                Residents Served
+              </div>
+            </div>
+            <div className="text-center bg-black/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-400 mb-1">
+                {weeklyPrograms}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-200 font-medium">
+                Weekly Programs
+              </div>
+            </div>
+            <div className="text-center bg-black/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-400 mb-1">
+                {openingDays}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-200 font-medium">
+                Days a Week
+              </div>
+            </div>
+            <div className="text-center bg-black/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-400 mb-1">
+                {mainHallCapacity}
+              </div>
+              <div className="text-xs sm:text-sm text-gray-200 font-medium">
+                Main Hall Capacity
+              </div>
+            </div>
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">
             <a
-              href="/programs"
-              className="inline-block px-6 py-3 text-sm font-bold text-primary-950 bg-white border-2 border-primary-950 rounded-lg hover:bg-primary-950 hover:text-white transition uppercase tracking-wide"
+              href={settings?.hero_cta_button_link || "/programs"}
+              className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg text-base sm:text-lg uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              View Programs
+              {settings?.hero_cta_button_text || "Explore Programs"}
+            </a>
+            <a
+              href="/facilities"
+              className="inline-block bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-bold py-3 px-6 sm:py-4 sm:px-8 rounded-lg text-base sm:text-lg uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg border border-white/30"
+            >
+              Book Facilities
             </a>
           </div>
         </div>
       </div>
-
-      {/* Image */}
-      <div className="w-full lg:w-1/2 flex justify-center mt-8 lg:mt-0 px-4">
-        <div className="w-full max-w-md bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-8 text-white text-center">
-          <div className="text-6xl mb-4">🏢</div>
-          <h3 className="text-2xl font-bold mb-4">Community Centre</h3>
-          <div className="space-y-2 text-sm">
-            <p>📍 {address}</p>
-            <p>📞 {contactPhone}</p>
-            <p>🕘 Open {openingHoursText} a week</p>
-            <p>👥 Serving {residentsServed} residents</p>
-          </div>
-        </div>
-      </div>
-    </Container>
+    </div>
   );
-};
+}

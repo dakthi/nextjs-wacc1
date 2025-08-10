@@ -3,6 +3,8 @@ import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { SectionTitle } from "@/components/SectionTitle";
 import ContactForm from "@/components/ContactForm";
 import GoogleMap from "@/components/GoogleMap";
+import { prisma } from "@/lib/prisma";
+import { getSettings } from "@/lib/settings";
 
 export const metadata = {
   title: "Contact & Booking | West Acton Community Centre",

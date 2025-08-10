@@ -11,12 +11,29 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get the first (and should be only) homepage content record
-    const content = await prisma.homepageContent.findFirst({
-      orderBy: { createdAt: 'desc' }
+    // Get hero-related settings from SiteSetting table
+    const settings = await prisma.siteSetting.findMany({
+      where: {
+        key: {
+          in: [
+            'hero_background_image',
+            'hero_cta_button_text', 
+            'hero_cta_button_link',
+            'hero_subtitle',
+            'hero_description'
+          ]
+        }
+      }
     })
 
-    return NextResponse.json(content || {})
+    // Convert to expected format for admin UI
+    const content = {
+      heroVideoUrl: settings.find(s => s.key === 'hero_background_image')?.value || '/img/entrance.jpeg',
+      heroButtonText: settings.find(s => s.key === 'hero_cta_button_text')?.value || 'EXPLORE OUR PROGRAMS',
+      heroButtonLink: settings.find(s => s.key === 'hero_cta_button_link')?.value || '/programs'
+    }
+
+    return NextResponse.json(content)
   } catch (error) {
     console.error('Error fetching homepage content:', error)
     return NextResponse.json(
@@ -36,88 +53,33 @@ export async function POST(request: NextRequest) {
 
     const data = await request.json()
 
-    // Check if there's existing content
-    const existingContent = await prisma.homepageContent.findFirst()
+    // Update hero-related settings in SiteSetting table
+    const settingsToUpdate = [
+      { key: 'hero_background_image', value: data.hero_background_image || '/img/entrance.jpeg' },
+      { key: 'hero_cta_button_text', value: data.hero_cta_button_text || 'EXPLORE OUR PROGRAMS' },
+      { key: 'hero_cta_button_link', value: data.hero_cta_button_link || '/programs' }
+    ]
 
-    let content
-    if (existingContent) {
-      // Update existing content - map the frontend field names to database field names
-      content = await prisma.homepageContent.update({
-        where: { id: existingContent.id },
-        data: {
-          // Hero Section
-          heroVideoUrl: data.hero_background_image,
-          heroButtonText: data.hero_cta_button_text,
-          heroButtonLink: data.hero_cta_button_link,
-          
-          // Split Banner Section
-          bannerProgramsTitle: data.banner_programs_title,
-          bannerProgramsSubtitle: data.banner_programs_subtitle,
-          bannerProgramsImage: data.banner_programs_image,
-          bannerFacilitiesTitle: data.banner_facilities_title,
-          bannerFacilitiesSubtitle: data.banner_facilities_subtitle,
-          
-          // Community Section
-          communityPretitle: data.community_section_pretitle,
-          communityTitle: data.community_section_title,
-          communityDescription: data.community_section_description,
-          
-          // Facilities Section
-          facilitiesTitle: data.facilities_section_title,
-          facilitiesSectionHeading: data.facilities_section_heading,
-          
-          // Location Section
-          locationTitle: data.location_section_title,
-          locationDescription: data.location_section_description,
-          locationContact: data.location_section_contact,
-          locationSectionHeading: data.location_section_heading,
-          locationImage: data.location_section_image,
-          
-          // Programs Section
-          programsSectionTitle: data.programs_section_title,
-          programsViewAllText: data.programs_button_text,
-        }
-      })
-    } else {
-      // Create new content record
-      content = await prisma.homepageContent.create({
-        data: {
-          // Hero Section
-          heroVideoUrl: data.hero_background_image,
-          heroButtonText: data.hero_cta_button_text,
-          heroButtonLink: data.hero_cta_button_link,
-          
-          // Split Banner Section
-          bannerProgramsTitle: data.banner_programs_title,
-          bannerProgramsSubtitle: data.banner_programs_subtitle,
-          bannerProgramsImage: data.banner_programs_image,
-          bannerFacilitiesTitle: data.banner_facilities_title,
-          bannerFacilitiesSubtitle: data.banner_facilities_subtitle,
-          
-          // Community Section
-          communityPretitle: data.community_section_pretitle,
-          communityTitle: data.community_section_title,
-          communityDescription: data.community_section_description,
-          
-          // Facilities Section
-          facilitiesTitle: data.facilities_section_title,
-          facilitiesSectionHeading: data.facilities_section_heading,
-          
-          // Location Section
-          locationTitle: data.location_section_title,
-          locationDescription: data.location_section_description,
-          locationContact: data.location_section_contact,
-          locationSectionHeading: data.location_section_heading,
-          locationImage: data.location_section_image,
-          
-          // Programs Section
-          programsSectionTitle: data.programs_section_title,
-          programsViewAllText: data.programs_button_text,
+    // Use upsert to create or update each setting
+    for (const setting of settingsToUpdate) {
+      await prisma.siteSetting.upsert({
+        where: { key: setting.key },
+        update: { value: setting.value },
+        create: { 
+          key: setting.key, 
+          value: setting.value, 
+          type: 'string',
+          description: `Hero section ${setting.key.replace('hero_', '').replace('_', ' ')}`
         }
       })
     }
 
-    return NextResponse.json(content, { status: 200 })
+    return NextResponse.json({ 
+      message: 'Hero settings updated successfully',
+      heroVideoUrl: data.hero_background_image,
+      heroButtonText: data.hero_cta_button_text,
+      heroButtonLink: data.hero_cta_button_link
+    })
   } catch (error) {
     console.error('Error saving homepage content:', error)
     return NextResponse.json(

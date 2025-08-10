@@ -4,13 +4,14 @@ import { BenefitFacilities } from "@/components/BenefitFacilities";
 import { BenefitLocation } from "@/components/BenefitLocation";
 import { Testimonials } from "@/components/Testimonials";
 import Faq from "@/components/Faq";
-import { VideoSelfHosted } from "@/components/VideoSelfHosted";
+import { Hero } from "@/components/Hero";
 import { SplitBanner } from "@/components/SplitBanner";
 import AboutUs from "@/components/AboutUs";
 import GoogleMap from "@/components/GoogleMap";
 import ProgramSchedule from "@/components/ProgramSchedule";
 import { getSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
+import { processFacilityImage } from "@/lib/image-fallback";
 
 export const dynamic = 'force-dynamic';
 
@@ -97,12 +98,12 @@ export default async function Home() {
       title: "ROOM HIRE",
       subtitle: "Flexible spaces for your events",
       description: facilities.length > 0
-        ? `Our ${facilities.length} professionally managed spaces offer flexible solutions for events, meetings, and community gatherings. ${facilities[0]?.name || 'Main facilities'} available${facilities[0]?.hourlyRate ? ` from £${facilities[0].hourlyRate}/hour` : ' at competitive rates'}.`
+        ? `Our ${facilities.length} professionally managed spaces offer flexible solutions for events, meetings, and community gatherings. ${facilities[0]?.name || 'Main facilities'} available${facilities[0]?.hourlyRate ? ` from £${facilities[0].hourlyRate.toString()}/hour` : ' at competitive rates'}.`
         : "Sustainable facilities with LED lighting and energy-efficient systems, perfect for events, parties, meetings, and community gatherings",
-      image: facilities.find(f => f.imageUrl)?.imageUrl || "/img/80-chairs.jpeg",
+      image: processFacilityImage(facilities.find(f => f.imageUrl)?.imageUrl || null, facilities[0]?.name) || "/img/80-chairs.jpeg",
       buttonText: "BOOK NOW",
       buttonLink: "/facilities",
-      features: facilities.length > 0 && facilities[0]?.hourlyRate ? `From £${facilities[0].hourlyRate}/hour` : "From £15/hour",
+      features: facilities.length > 0 && facilities[0]?.hourlyRate ? `From £${facilities[0].hourlyRate.toString()}/hour` : "From £15/hour",
     },
   ];
 
@@ -173,7 +174,10 @@ export default async function Home() {
   return (
     <div>
       {/* Hero + Split Banner */}
-      <VideoSelfHosted settings={settings} />
+      <Hero 
+        settings={settings} 
+        backgroundImage={processFacilityImage(facilities.find(f => f.imageUrl)?.imageUrl || null, facilities[0]?.name) || undefined}
+      />
       <SplitBanner sections={splitBannerData} />
       
       {/* Community Impact Stats */}
@@ -219,7 +223,7 @@ export default async function Home() {
           dimensions: facility.dimensions,
           hourlyRate: facility.hourlyRate,
           features: facility.features,
-          imageUrl: facility.imageUrl
+          imageUrl: processFacilityImage(facility.imageUrl, facility.name)
         })) : [
           {
             id: 1,

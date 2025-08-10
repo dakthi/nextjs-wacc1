@@ -4,6 +4,7 @@ import { SectionTitle } from "@/components/SectionTitle";
 import ProgramSchedule from "@/components/ProgramSchedule";
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { processProgramImage } from "@/lib/image-fallback";
 
 interface CommunityGroup {
   id: number;
@@ -129,10 +130,10 @@ export default async function Programs() {
         <div className="grid gap-8 lg:gap-12 mt-16">
           {programs.map((program: any) => (
             <div key={program.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              {program.imageUrl && (
+              {(program.imageUrl || processProgramImage(program.imageUrl, program.title)) && (
                 <div className="h-48 bg-gray-100 relative">
                   <img
-                    src={program.imageUrl}
+                    src={processProgramImage(program.imageUrl, program.title) || "/img/poster-stayandplay.jpeg"}
                     alt={program.title}
                     className="w-full h-full object-cover"
                   />
