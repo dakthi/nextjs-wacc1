@@ -1,19 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { TextOnlyHero } from "@/components/TextOnlyHero";
-import { Benefits } from "@/components/Benefits";
 import { Container } from "@/components/Container";
 import { SectionTitle } from "@/components/SectionTitle";
-import ServicesMenu from "@/components/ServicesMenu";
 import { GoogleMap } from "@/components/GoogleMap";
 import BookingForm from "@/components/BookingForm";
 import { processFacilityImage } from "@/lib/image-fallback";
 import { generateSEOMetadata } from "@/lib/seo";
-import { getSettings } from "@/lib/settings";
 
 export async function generateMetadata() {
   return generateSEOMetadata({
     title: "Facilities & Room Hire",
-    description: "Book our modern facilities for events, classes, and gatherings. Main Hall (120 capacity), Small Hall, and fully equipped Kitchen available from £15/hour. Private parking included.",
+    description: "Book our modern facilities for events, classes, and gatherings. Main Hall (120 capacity), Small Hall, and fully equipped Kitchen available for hire. Private parking included.",
     url: "/facilities",
     keywords: [
       "hall hire",
@@ -32,62 +29,6 @@ export async function generateMetadata() {
   });
 }
 
-// Facilities data
-const mainHallData = {
-  title: "Main Hall with Outside Area - Perfect for Large Events",
-  desc: "Our spacious Main Hall includes access to paved outside area and kitchen facilities. Ideal for parties, weddings, funerals, wakes, NHS courses, and community events.",
-  image: "/img/80-chairs.jpeg",
-  bullets: [
-    {
-      title: "9.81m × 12.64m Space + Outside Paved Area",
-      desc: "Generous indoor space with additional outdoor paved area for extended events",
-      icon: "📏",
-    },
-    {
-      title: "120 Person Capacity",
-      desc: "Accommodates large groups for community events, celebrations, and professional courses",
-      icon: "👥",
-    },
-    {
-      title: "Includes Kitchen Access",
-      desc: "Full kitchen facilities with fridge, kettle, microwave, and sink. No cooking allowed - outside catering welcome",
-      icon: "🍽️",
-    },
-    {
-      title: "Tables & Chairs Included",
-      desc: "10 large rectangular tables and 80 chairs included in hire price",
-      icon: "🪑",
-    },
-    {
-      title: "On Request Pricing",
-      desc: "Competitive rates varying by event type. Preferential rates for charities and regular bookings",
-      icon: "💷",
-    },
-  ],
-};
-
-const smallHallData = {
-  title: "Small Hall - Intimate Group Setting", 
-  desc: "Our cozy Small Hall provides the perfect environment for small group classes, meetings, and intimate gatherings.",
-  image: "/img/manager-office.jpeg",
-  bullets: [
-    {
-      title: "4.26m × 6.20m Space",
-      desc: "Comfortable size perfect for focused group activities and small meetings",
-      icon: "📐",
-    },
-    {
-      title: "15 Person Capacity",
-      desc: "Ideal for workshops, small classes, and community group meetings",
-      icon: "👤",
-    },
-    {
-      title: "Competitive Rates",
-      desc: "Affordable pricing for small group bookings and regular class sessions",
-      icon: "💶",
-    },
-  ],
-};
 
 // Booking information
 const bookingInfo = [
@@ -179,166 +120,107 @@ export default async function Facilities() {
     // Will use fallback data below
   }
 
-  // Get main hall and small hall from database or use fallback
-  const mainHall = facilities.find(f => f.name.toLowerCase().includes('main hall')) || null;
-  const smallHall = facilities.find(f => f.name.toLowerCase().includes('small hall')) || null;
 
-  // Create dynamic facility services data
-  const facilityServicesData = {
-    title: "Room Hire & Services",
-    sections: [
-      {
-        title: "Hall Rentals",
-        items: facilities.length > 0 ? facilities.map(facility => ({
-          name: facility.name,
-          subtitle: `${facility.capacity || 'Contact for capacity'} Person Capacity • ${facility.dimensions || 'Contact for dimensions'}`,
-          description: facility.description || "Contact us for more information about this facility.",
-          price: facility.hourlyRate ? `£${facility.hourlyRate}/hour` : "Contact for pricing",
-          duration: facility.hourlyRate ? "Competitive rates for longer bookings" : "",
-          features: facility.features ? facility.features as string[] : [
-            "Professional space",
-            "Maintained to high standards",
-            "Booking support included"
-          ]
-        })) : [
-          {
-            name: "Main Hall",
-            subtitle: "120 Person Capacity • 9.81m × 12.64m",
-            description: "Spacious hall with outside paved area access, perfect for large events, parties, weddings, funerals, NHS courses, and community gatherings.",
-            price: "On Request",
-            duration: "Competitive rates vary by event type",
-            features: [
-              "120 person capacity",
-              "Outside paved area access",
-              "Kitchen facilities included",
-              "10 large rectangular tables",
-              "80 chairs included",
-              "Professional cleaning included"
-            ]
-          },
-          {
-            name: "Small Hall",
-            subtitle: "15 Person Capacity • 4.26m × 6.20m",
-            description: "Intimate space ideal for small group classes, meetings, workshops, and community group gatherings.",
-            price: "Contact for pricing",
-            duration: "",
-            features: [
-              "15 person capacity",
-              "Perfect for workshops",
-              "Small group meetings",
-              "Regular class sessions",
-              "Comfortable environment"
-            ]
-          }
-        ]
-      },
+  // Process facilities for card display
+  const displayFacilities = facilities.length > 0 ? facilities.map(facility => ({
+    id: facility.id,
+    name: facility.name,
+    subtitle: facility.subtitle || `${facility.capacity || 'Various'} Person Capacity`,
+    description: facility.description || "Professional space maintained to high standards.",
+    capacity: facility.capacity,
+    dimensions: facility.dimensions,
+    hourlyRate: facility.hourlyRate,
+    features: facility.features || [],
+    imageUrl: processFacilityImage(facility.imageUrl, facility.name)
+  })) : [
     {
-      title: "Additional Services",
-      items: [
-        {
-          name: "Kitchen Access",
-          description: "Full kitchen facilities with sink, power outlets for kettle, and small seating area. Outside catering welcome.",
-          features: [
-            "Sink and counter space",
-            "Power outlets for appliances",
-            "Small seating area",
-            "Refrigeration available",
-            "No cooking allowed - catering friendly"
-          ]
-        },
-        {
-          name: "Tables & Chairs",
-          description: "Quality furniture included with hall rentals at no additional cost.",
-          features: [
-            "10 large rectangular tables (Main Hall)",
-            "80 chairs (Main Hall)",
-            "Professional setup available",
-            "Included in hire price"
-          ]
-        },
-        {
-          name: "Parking & Access",
-          description: "Convenient facilities to ensure your event runs smoothly.",
-          features: [
-            "Private on-site parking available",
-            "Ground floor access",
-            "Disability accessible",
-            "Excellent transport links"
-          ]
-        }
-      ]
+      id: 'main-hall',
+      name: "Main Hall",
+      subtitle: "120 Person Capacity",
+      description: "Spacious hall perfect for large events, parties, weddings, NHS courses, and community gatherings.",
+      capacity: 120,
+      dimensions: "9.81m × 12.64m",
+      hourlyRate: null,
+      features: ["Outside paved area access", "Kitchen facilities included", "10 large rectangular tables", "80 chairs included"],
+      imageUrl: "/img/80-chairs.jpeg"
+    },
+    {
+      id: 'small-hall',
+      name: "Small Hall", 
+      subtitle: "15 Person Capacity",
+      description: "Intimate space ideal for small group classes, meetings, workshops, and community gatherings.",
+      capacity: 15,
+      dimensions: "4.26m × 6.20m",
+      hourlyRate: null,
+      features: ["Perfect for workshops", "Small group meetings", "Regular class sessions", "Comfortable environment"],
+      imageUrl: "/img/manager-office.jpeg"
     }
-  ]
-};
+  ];
 
-  // Create dynamic data for main hall
-  const dynamicMainHallData = mainHall ? {
-    title: `${mainHall.name} - Perfect for Large Events`,
-    desc: mainHall.description || "Our spacious Main Hall includes access to paved outside area and kitchen facilities. Ideal for parties, weddings, funerals, wakes, NHS courses, and community events.",
-    image: processFacilityImage(mainHall.imageUrl, mainHall.name) || "/img/80-chairs.jpeg",
-    bullets: [
-      {
-        title: mainHall.dimensions ? `${mainHall.dimensions} Space + Outside Paved Area` : "9.81m × 12.64m Space + Outside Paved Area",
-        desc: "Generous indoor space with additional outdoor paved area for extended events",
-        icon: "📏",
-      },
-      {
-        title: mainHall.capacity ? `${mainHall.capacity} Person Capacity` : "120 Person Capacity",
-        desc: "Accommodates large groups for community events, celebrations, and professional courses",
-        icon: "👥",
-      },
-      {
-        title: "Includes Kitchen Access",
-        desc: "Full kitchen facilities with fridge, kettle, microwave, and sink. No cooking allowed - outside catering welcome",
-        icon: "🍽️",
-      },
-      {
-        title: "Tables & Chairs Included",
-        desc: "10 large rectangular tables and 80 chairs included in hire price",
-        icon: "🪑",
-      },
-      {
-        title: mainHall.hourlyRate ? `From £${mainHall.hourlyRate}/hour` : "On Request Pricing",
-        desc: "Competitive rates varying by event type. Preferential rates for charities and regular bookings",
-        icon: "💷",
-      },
-    ],
-  } : mainHallData;
-
-  // Create dynamic data for small hall
-  const dynamicSmallHallData = smallHall ? {
-    title: `${smallHall.name} - Intimate Group Setting`,
-    desc: smallHall.description || "Our cozy Small Hall provides the perfect environment for small group classes, meetings, and intimate gatherings.",
-    image: processFacilityImage(smallHall.imageUrl, smallHall.name) || "/img/manager-office.jpeg",
-    bullets: [
-      {
-        title: smallHall.dimensions ? `${smallHall.dimensions} Space` : "4.26m × 6.20m Space",
-        desc: "Comfortable size perfect for focused group activities and small meetings",
-        icon: "📐",
-      },
-      {
-        title: smallHall.capacity ? `${smallHall.capacity} Person Capacity` : "15 Person Capacity",
-        desc: "Ideal for workshops, small classes, and community group meetings",
-        icon: "👤",
-      },
-      {
-        title: smallHall.hourlyRate ? `From £${smallHall.hourlyRate}/hour` : "Competitive Rates",
-        desc: "Affordable pricing for small group bookings and regular class sessions",
-        icon: "💶",
-      },
-    ],
-  } : smallHallData;
+  // Get hero image from first facility or use default
+  const heroImage = displayFacilities.length > 0 ? (displayFacilities[0]?.imageUrl || "/img/80-chairs.jpeg") : "/img/80-chairs.jpeg";
 
   return (
     <div>
       <TextOnlyHero 
         title="Facilities & Room Hire"
         subtitle="Modern, versatile spaces in the heart of West Acton"
-        backgroundImage={dynamicMainHallData.image}
+        backgroundImage={heroImage}
       />
       
-      <Benefits data={dynamicMainHallData} />
-      <Benefits imgPos="right" data={dynamicSmallHallData} />
+      {/* Location & Booking Section - Two Columns */}
+      <Container>
+        <div className="py-16">
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Column 1 - Location */}
+            <div>
+              <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
+                Our Location
+              </h2>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                Conveniently located in Churchill Gardens with excellent transport links and parking facilities.
+              </p>
+              
+              <GoogleMap 
+                address="West Acton Community Centre, Churchill Gardens, Acton, London W3 0JN"
+                className="w-full h-64 rounded-lg shadow-md border border-gray-200 mb-4"
+              />
+              
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">
+                  📍 Churchill Gardens, Acton, London W3 0JN
+                </p>
+                <p className="text-xs text-gray-500">
+                  2 min from West Acton Station
+                </p>
+                <a 
+                  href="https://www.google.com/maps/dir/?api=1&destination=Churchill%20Gardens%2C%20Acton%2C%20London%20W3%200JN"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-primary-600 hover:text-primary-800 font-medium text-sm underline"
+                >
+                  Get Directions →
+                </a>
+              </div>
+            </div>
+
+            {/* Column 2 - Booking Form */}
+            <div>
+              <div className="bg-primary-50 rounded-2xl p-6 h-full">
+                <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
+                  Book Your Event
+                </h2>
+                <p className="text-gray-700 mb-6">
+                  Complete the form below and we'll get back to you with availability and pricing
+                </p>
+                
+                <BookingForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+      
 
 
       <Container>
@@ -389,14 +271,71 @@ export default async function Facilities() {
         </div>
       </Container>
 
-      {/* Services Menu */}
+      {/* Facilities Cards */}
       <Container>
-        <ServicesMenu
-          title={facilityServicesData.title}
-          sections={facilityServicesData.sections}
-          bgColor="bg-white"
-          accentColor="text-primary-600"
-        />
+        <SectionTitle
+          preTitle="Available Spaces"
+          title="Our Facilities"
+        >
+          Choose from our professionally managed spaces, each designed to accommodate different types of events and gatherings.
+        </SectionTitle>
+
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 mt-16 space-y-8">
+          {displayFacilities.map((facility) => (
+            <div key={facility.id} className="break-inside-avoid bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+              {/* Image */}
+              <div className="h-48 bg-gray-100 relative">
+                <img
+                  src={facility.imageUrl || "/img/80-chairs.jpeg"}
+                  alt={`${facility.name} - Community Centre Facility`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="p-4">
+                <div className="flex flex-col mb-3">
+                  <h3 className="text-xl font-heading font-bold text-primary-600 mb-2">
+                    {facility.name}
+                  </h3>
+                  <span className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-medium self-start">
+                    Available for Hire
+                  </span>
+                </div>
+                
+                <p className="text-primary-600 font-medium text-sm mb-2">{facility.subtitle}</p>
+                <p className="text-gray-700 text-sm mb-3 leading-relaxed">{facility.description}</p>
+                
+                {/* Specs */}
+                <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <span className="text-xs font-medium text-gray-600">Capacity</span>
+                    <p className="font-semibold text-gray-900 text-sm">{facility.capacity || 'Various'} people</p>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-gray-600">Dimensions</span>
+                    <p className="font-semibold text-gray-900 text-sm">{facility.dimensions || 'Contact for details'}</p>
+                  </div>
+                </div>
+                
+                {/* Features */}
+                {facility.features && facility.features.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">Features</h4>
+                    <ul className="space-y-1 text-xs text-gray-600">
+                      {facility.features.slice(0, 4).map((feature: string, idx: number) => (
+                        <li key={idx} className="flex items-center">
+                          <span className="w-1 h-1 bg-primary-600 rounded-full mr-2 flex-shrink-0"></span>
+                          <span className="leading-tight">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </Container>
 
       {/* Photo Gallery */}
@@ -428,54 +367,6 @@ export default async function Facilities() {
           ))}
         </div>
 
-        {/* Location Map & Booking Form - Two Column Layout */}
-        <div className="mt-16 grid gap-8 lg:grid-cols-3">
-          {/* Location Map - Column 1 (narrower) */}
-          <div className="lg:col-span-1">
-            <div className="mb-6">
-              <h3 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
-                Our Location
-              </h3>
-              <p className="text-gray-700 leading-relaxed">
-                Conveniently located in Churchill Gardens with excellent transport links and parking facilities.
-              </p>
-            </div>
-            <GoogleMap 
-              address="West Acton Community Centre, Churchill Gardens, Acton, London W3 0JN"
-              className="w-full h-64 rounded-lg shadow-md border border-gray-200"
-            />
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600 mb-2">
-                📍 Churchill Gardens, Acton, London W3 0JN
-              </p>
-              <p className="text-xs text-gray-500 mb-3">
-                2 min from West Acton Station
-              </p>
-              <a 
-                href="https://www.google.com/maps/dir/?api=1&destination=Churchill%20Gardens%2C%20Acton%2C%20London%20W3%200JN"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block text-primary-600 hover:text-primary-800 font-medium text-sm underline"
-              >
-                Get Directions →
-              </a>
-            </div>
-          </div>
-
-          {/* Booking Form - Column 2 (wider) */}
-          <div className="lg:col-span-2">
-            <div className="bg-primary-50 rounded-2xl p-8 h-full">
-              <h3 className="text-2xl font-heading font-bold text-primary-600 mb-6 text-center uppercase tracking-tight">
-                Book Your Event
-              </h3>
-              <p className="text-gray-700 mb-8 text-center">
-                Complete the form below and we'll get back to you with availability and pricing
-              </p>
-              
-              <BookingForm />
-            </div>
-          </div>
-        </div>
       </Container>
     </div>
   );

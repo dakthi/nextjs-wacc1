@@ -81,12 +81,10 @@ const ProgramSchedule: React.FC<ProgramScheduleProps> = ({
                   )}
                 </div>
 
-                {item.contact && (
+                {item.contact?.website && (
                   <div className="mt-4 pt-3 border-t border-gray-200 text-xs space-y-1">
-                    <p className="font-medium text-gray-600">Contact Information:</p>
-                    {item.contact.email && <p>📧 {item.contact.email}</p>}
-                    {item.contact.phone && <p>📞 {item.contact.phone}</p>}
-                    {item.contact.website && <p>🌐 {item.contact.website}</p>}
+                    <p className="font-medium text-gray-600">More Information:</p>
+                    <p>🌐 {item.contact.website}</p>
                   </div>
                 )}
               </div>

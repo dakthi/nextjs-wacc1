@@ -43,14 +43,34 @@ export const Navbar = () => {
 
       setSearching(true)
       try {
-        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 second timeout for mobile
+        
+        const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`, {
+          signal: controller.signal,
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        
+        clearTimeout(timeoutId)
+        
         if (response.ok) {
           const results = await response.json()
-          setSearchResults(results)
+          setSearchResults(Array.isArray(results) ? results : [])
           setShowResults(true)
+        } else {
+          // Handle non-200 responses gracefully
+          setSearchResults([])
+          setShowResults(false)
         }
-      } catch (error) {
-        console.error('Search error:', error)
+      } catch (error: any) {
+        // Handle all errors gracefully - network, timeout, parse errors
+        if (error?.name !== 'AbortError') {
+          console.error('Search error:', error)
+        }
+        setSearchResults([])
+        setShowResults(false)
       } finally {
         setSearching(false)
       }

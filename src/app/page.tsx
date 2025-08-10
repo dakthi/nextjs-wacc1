@@ -111,12 +111,12 @@ export default async function Home() {
       title: "ROOM HIRE",
       subtitle: "Flexible spaces for your events",
       description: facilities.length > 0
-        ? `Our ${facilities.length} professionally managed spaces offer flexible solutions for events, meetings, and community gatherings. ${facilities[0]?.name || 'Main facilities'} available${facilities[0]?.hourlyRate ? ` from £${facilities[0].hourlyRate.toString()}/hour` : ' at competitive rates'}.`
+        ? `Our ${facilities.length} professionally managed spaces offer flexible solutions for events, meetings, and community gatherings. ${facilities[0]?.name || 'Main facilities'} available at competitive rates.`
         : "Sustainable facilities with LED lighting and energy-efficient systems, perfect for events, parties, meetings, and community gatherings",
       image: processFacilityImage(facilities.find(f => f.imageUrl)?.imageUrl || null, facilities[0]?.name) || "/img/80-chairs.jpeg",
       buttonText: "BOOK NOW",
       buttonLink: "/facilities",
-      features: facilities.length > 0 && facilities[0]?.hourlyRate ? `From £${facilities[0].hourlyRate.toString()}/hour` : "From £15/hour",
+      features: "Competitive rates available",
     },
   ];
 
@@ -143,8 +143,8 @@ export default async function Home() {
   // Additional stats for extended content
   const extendedStats = [
     {
-      title: "£15",
-      desc: "Starting rate per hour for hall hire",
+      title: "35+",
+      desc: "Years serving the community",
     },
     {
       title: "1990",
@@ -271,7 +271,7 @@ export default async function Home() {
       <BenefitFacilities
         title="Modern Facilities for Every Occasion"
         description={`Discover our ${facilities.length > 0 ? facilities.length : 3} professionally managed spaces, offering flexible solutions for events, meetings, fitness classes, and community gatherings. Each facility is maintained to the highest standards with modern amenities.`}
-        contact={`For bookings and enquiries, contact us at ${settings.contact_email} or call ${settings.contact_phone}`}
+        contact="For bookings and enquiries, please use our contact form"
         sectionHeading="Our Available Spaces"
         facilities={facilities.length > 0 ? facilities.map((facility: any) => ({
           id: facility.id,

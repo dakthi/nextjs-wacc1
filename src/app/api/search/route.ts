@@ -27,49 +27,53 @@ export async function GET(request: NextRequest) {
 
     // Only search database if DATABASE_URL is available
     if (process.env.DATABASE_URL) {
-      // Search Programs
+      // Search Programs with timeout protection
       try {
-        const programs = await prisma.program.findMany({
-        where: {
-          active: true,
-          OR: [
-            {
-              title: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
+        const programs = await Promise.race([
+          prisma.program.findMany({
+            where: {
+              active: true,
+              OR: [
+                {
+                  title: {
+                    contains: searchTerm,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  description: {
+                    contains: searchTerm,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  instructor: {
+                    contains: searchTerm,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  category: {
+                    contains: searchTerm,
+                    mode: 'insensitive'
+                  }
+                }
+              ]
             },
-            {
-              description: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              instructor: true,
+              category: true
             },
-            {
-              instructor: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
-            },
-            {
-              category: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
-            }
-          ]
-        },
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          instructor: true,
-          category: true
-        },
-        take: 10
-      })
+            take: 10
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 3000))
+        ])
 
-      programs.forEach((program: any) => {
+      if (Array.isArray(programs)) {
+        programs.forEach((program: any) => {
         results.push({
           id: `program-${program.id}`,
           title: program.title,
@@ -78,96 +82,107 @@ export async function GET(request: NextRequest) {
           url: '/programs'
         })
       })
+      }
     } catch (error) {
       console.error('Error searching programs:', error)
     }
 
-    // Search Facilities
+    // Search Facilities with timeout protection
     try {
-      const facilities = await prisma.facility.findMany({
-        where: {
-          active: true,
-          OR: [
-            {
-              name: {
-                contains: searchTerm,
-                mode: 'insensitive'
+      const facilities = await Promise.race([
+        prisma.facility.findMany({
+          where: {
+            active: true,
+            OR: [
+              {
+                name: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                description: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                subtitle: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
               }
-            },
-            {
-              description: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
-            },
-            {
-              subtitle: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
-            }
-          ]
-        },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          subtitle: true,
-          capacity: true
-        },
-        take: 10
-      })
+            ]
+          },
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            subtitle: true,
+            capacity: true
+          },
+          take: 10
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 3000))
+      ])
 
-      facilities.forEach((facility: any) => {
-        results.push({
-          id: `facility-${facility.id}`,
-          title: facility.name,
-          description: facility.description || facility.subtitle || `Capacity: ${facility.capacity} people`,
-          type: 'facility',
-          url: '/facilities'
+      if (Array.isArray(facilities)) {
+        facilities.forEach((facility: any) => {
+          results.push({
+            id: `facility-${facility.id}`,
+            title: facility.name,
+            description: facility.description || facility.subtitle || `Capacity: ${facility.capacity} people`,
+            type: 'facility',
+            url: '/facilities'
+          })
         })
-      })
+      }
     } catch (error) {
       console.error('Error searching facilities:', error)
     }
 
-    // Search FAQ Items
+    // Search FAQ Items with timeout protection
     try {
-      const faqItems = await prisma.faqItem.findMany({
-        where: {
-          active: true,
-          OR: [
-            {
-              question: {
-                contains: searchTerm,
-                mode: 'insensitive'
+      const faqItems = await Promise.race([
+        prisma.faqItem.findMany({
+          where: {
+            active: true,
+            OR: [
+              {
+                question: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
+              },
+              {
+                answer: {
+                  contains: searchTerm,
+                  mode: 'insensitive'
+                }
               }
-            },
-            {
-              answer: {
-                contains: searchTerm,
-                mode: 'insensitive'
-              }
-            }
-          ]
-        },
-        select: {
-          id: true,
-          question: true,
-          answer: true
-        },
-        take: 5
-      })
+            ]
+          },
+          select: {
+            id: true,
+            question: true,
+            answer: true
+          },
+          take: 5
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Database timeout')), 3000))
+      ])
 
-      faqItems.forEach((faq: any) => {
-        results.push({
-          id: `faq-${faq.id}`,
-          title: faq.question,
-          description: faq.answer.length > 100 ? faq.answer.substring(0, 100) + '...' : faq.answer,
-          type: 'page',
-          url: '/contact#faq'
+      if (Array.isArray(faqItems)) {
+        faqItems.forEach((faq: any) => {
+          results.push({
+            id: `faq-${faq.id}`,
+            title: faq.question,
+            description: faq.answer.length > 100 ? faq.answer.substring(0, 100) + '...' : faq.answer,
+            type: 'page',
+            url: '/contact#faq'
+          })
         })
-      })
+      }
     } catch (error) {
       console.error('Error searching FAQ:', error)
     }

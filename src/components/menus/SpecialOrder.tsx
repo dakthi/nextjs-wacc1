@@ -14,9 +14,8 @@ const SpecialOrder = () => {
         {/* Middle Two Columns */}
         <div className="md:col-span-2 space-y-6 text-sm">
           <div>
-            <div className="flex justify-between font-semibold text-[#5b4636]">
+            <div className="font-semibold text-[#5b4636]">
               <span>Seafood Hotpot</span>
-              <span>£38.50</span>
             </div>
             <p className="italic text-[#8B4513]">Lẩu hải sản</p>
             <p className="text-gray-700">
@@ -25,9 +24,8 @@ const SpecialOrder = () => {
           </div>
 
           <div>
-            <div className="flex justify-between font-semibold text-[#5b4636]">
+            <div className="font-semibold text-[#5b4636]">
               <span>Fermented Fish Hotpot</span>
-              <span>£40</span>
             </div>
             <p className="italic text-[#8B4513]">Lẩu mắm</p>
             <p className="text-gray-700">
@@ -39,9 +37,8 @@ const SpecialOrder = () => {
         {/* Right Column */}
         <div className="md:col-span-1 space-y-6 text-sm">
           <div>
-            <div className="flex justify-between font-semibold text-[#5b4636]">
+            <div className="font-semibold text-[#5b4636]">
               <span>Mixed Hotpot</span>
-              <span>£38.50</span>
             </div>
             <p className="italic text-[#8B4513]">Lẩu Tả Pín Lù</p>
             <p className="text-gray-700">

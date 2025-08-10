@@ -141,7 +141,7 @@ export default async function Programs() {
       <BenefitPrograms
         title="Weekly Programmes & Activities"
         description="From early years to senior activities, martial arts to educational support, we offer diverse programmes designed to bring our community together. Join our vibrant community with activities for all ages and interests."
-        contact={`For programme enquiries and registration, contact us at ${settings.contact_email} or call ${settings.contact_phone}`}
+        contact="For programme enquiries and registration, please use our contact form"
         sectionHeading="Current Programmes"
         programs={programs}
         viewAllHref="#community-groups"

@@ -7,7 +7,7 @@ const SetMenu = () => {
       {/* Set Menu */}
       <div className="border border-[#5b4636] p-6 shadow-md">
         <h2 className="text-3xl font-bold text-center text-[#5b4636] mb-6 uppercase tracking-wide">Set Menu</h2>
-        <p className="text-center text-sm text-gray-600 mb-6">£37 per person, ideal for groups (minimum 2 people)</p>
+        <p className="text-center text-sm text-gray-600 mb-6">Ideal for groups (minimum 2 people)</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div>
@@ -42,7 +42,7 @@ const SetMenu = () => {
       {/* Saigon Lunch Set */}
       <div className="border border-[#5b4636] p-6 shadow-md">
         <h2 className="text-2xl font-bold text-center text-[#5b4636] mb-4 uppercase tracking-wide">Saigon Lunch Set</h2>
-        <p className="text-center text-sm text-gray-600 mb-6">2 courses £19.95 (11 am – 3 pm, Mon–Fri)</p>
+        <p className="text-center text-sm text-gray-600 mb-6">2 courses (11 am – 3 pm, Mon–Fri)</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
           <div>
@@ -78,15 +78,15 @@ const SetMenu = () => {
 
         <div className="space-y-6">
           <div>
-            <h3 className="font-semibold text-[#8B4513]">Seafood Hotpot – £38.50</h3>
+            <h3 className="font-semibold text-[#8B4513]">Seafood Hotpot</h3>
             <p className="text-gray-700">Mixed seafood (shrimp, squid, clams, fish), mushrooms, tofu, vegetables, hotpot broth, vermicelli or noodles</p>
           </div>
           <div>
-            <h3 className="font-semibold text-[#8B4513]">Fermented Fish Hotpot – £40</h3>
+            <h3 className="font-semibold text-[#8B4513]">Fermented Fish Hotpot</h3>
             <p className="text-gray-700">Fermented fish broth (with linh or sặc fish), shrimp, squid, pork belly, vegetable, banana blossom, vermicelli or noodles</p>
           </div>
           <div>
-            <h3 className="font-semibold text-[#8B4513]">Mixed Hotpot – £38.50</h3>
+            <h3 className="font-semibold text-[#8B4513]">Mixed Hotpot</h3>
             <p className="text-gray-700">Beef, pork, shrimp, squid, fish balls, tofu, mushrooms, vegetables, hotpot broth, vermicelli or noodles</p>
           </div>
         </div>
