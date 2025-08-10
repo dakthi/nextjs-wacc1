@@ -1,6 +1,7 @@
 import { Container } from "@/components/Container";
 import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { SectionTitle } from "@/components/SectionTitle";
+import { BenefitPrograms } from "@/components/BenefitPrograms";
 import ProgramSchedule from "@/components/ProgramSchedule";
 import { prisma } from "@/lib/prisma";
 import { generateSEOMetadata } from "@/lib/seo";
@@ -127,15 +128,7 @@ export default async function Programs() {
     // Will use fallback data below
   }
 
-  // Organize programmes for ProgramSchedule component
-  const groupedPrograms = organizeProgramsForSchedule(programs)
-  const programScheduleData = {
-    title: "Weekly Programmes & Activities",
-    sections: Object.keys(groupedPrograms).map(category => ({
-      title: getCategoryTitle(category),
-      items: groupedPrograms[category] || []
-    }))
-  }
+  const settings = await getSettings()
 
   return (
     <div>
@@ -145,140 +138,52 @@ export default async function Programs() {
         backgroundImage="/img/IMG_1290.jpeg"
       />
 
-      <Container>
-        <SectionTitle
-          preTitle="Weekly Programmes"
-          title="Something for Everyone"
-        >
-          From early years to senior activities, martial arts to educational support, 
-          we offer diverse programmes designed to bring our community together.
-        </SectionTitle>
+      <BenefitPrograms
+        title="Weekly Programmes & Activities"
+        description="From early years to senior activities, martial arts to educational support, we offer diverse programmes designed to bring our community together. Join our vibrant community with activities for all ages and interests."
+        contact={`For programme enquiries and registration, contact us at ${settings.contact_email} or call ${settings.contact_phone}`}
+        sectionHeading="Current Programmes"
+        programs={programs}
+        viewAllHref="#community-groups"
+      />
 
-        <div className="grid gap-8 lg:gap-12 mt-16">
-          {programs.map((program: any) => (
-            <div key={program.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-              {(program.imageUrl || processProgramImage(program.imageUrl, program.title)) && (
-                <div className="h-48 bg-gray-100 relative">
-                  <img
-                    src={processProgramImage(program.imageUrl, program.title) || "/img/poster-stayandplay.jpeg"}
-                    alt={program.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                  {program.category && (
-                    <div className="absolute top-4 left-4">
-                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wide ${categoryColors[program.category as keyof typeof categoryColors]}`}>
-                        {categoryNames[program.category as keyof typeof categoryNames]}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute top-4 right-4 bg-white/90 rounded-full px-3 py-1">
-                    <span className="text-sm font-semibold text-gray-800">
-                      {program.ageGroup}
-                    </span>
-                  </div>
-                </div>
-              )}
-              
-              <div className="p-8">
-                <div className="mb-6">
-                  <h3 className="text-2xl font-heading font-bold text-primary-600 mb-3 uppercase tracking-tight">
-                    {program.title}
+      {/* Community Groups Section */}
+      {communityGroups.length > 0 && (
+        <div id="community-groups">
+          <Container className="py-16 bg-gray-50">
+            <SectionTitle
+              preTitle="Community Groups"
+              title="Cultural & Social Groups"
+            >
+              Join our diverse community groups that celebrate different cultures and bring people together.
+            </SectionTitle>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-12">
+              {communityGroups.map((group) => (
+                <div key={group.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {group.title}
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {program.description}
-                  </p>
-                </div>
-
-                {program.schedules && program.schedules.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-lg font-semibold text-gray-800 mb-3">Schedule</h4>
-                    <div className="space-y-2">
-                      {program.schedules.map((schedule: any, index: number) => (
-                        <div key={index} className="flex items-center text-gray-700">
-                          <span className="w-2 h-2 bg-primary-500 rounded-full mr-3"></span>
-                          {schedule.description}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  {program.price && (
-                    <div className="bg-primary-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-primary-600 mb-2">Cost</h4>
-                      <p className="text-gray-700">{program.price}</p>
-                    </div>
-                  )}
-                  
-                  {program.bookingInfo && (
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <h4 className="font-semibold text-green-600 mb-2">Booking</h4>
-                      <p className="text-gray-700">{program.bookingInfo}</p>
-                    </div>
-                  )}
-                  
-                  {(program.contactEmail || program.contactPhone || program.contactWebsite) && (
-                    <div className="bg-blue-50 rounded-lg p-4 md:col-span-2">
-                      <h4 className="font-semibold text-blue-600 mb-3">Contact Information</h4>
-                      <div className="space-y-2">
-                        {program.contactEmail && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Email:</span> {program.contactEmail}
-                          </p>
-                        )}
-                        {program.contactPhone && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Phone:</span> {program.contactPhone}
-                          </p>
-                        )}
-                        {program.contactWebsite && (
-                          <p className="text-gray-700">
-                            <span className="font-medium">Website:</span> {program.contactWebsite}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                  {group.description && (
+                    <p className="text-gray-600 text-sm">
+                      {group.description}
+                    </p>
                   )}
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </Container>
 
-      {/* Use ProgramSchedule component for organized view */}
-      <Container>
-        <ProgramSchedule
-          title={programScheduleData.title}
-          sections={programScheduleData.sections}
-          bgColor="bg-gray-50"
-          textColor="text-gray-800"
-        />
-      </Container>
-
-      <Container>
-        <SectionTitle
-          preTitle="Community Groups"
-          title="Cultural & Social Groups"
-        >
-          Our centre hosts various community groups that celebrate different cultures and bring people together.
-        </SectionTitle>
-
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-16">
-          {communityGroups.map((group: CommunityGroup) => (
-            <div key={group.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-heading font-bold text-primary-600 mb-3 uppercase tracking-tight">
-                {group.title}
-              </h3>
-              <p className="text-gray-700 leading-relaxed">
-                {group.description || 'No description available'}
-              </p>
+            <div className="text-center mt-8">
+              <a
+                href="/community-groups"
+                className="inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-lg text-sm uppercase tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                View All Groups
+              </a>
             </div>
-          ))}
+          </Container>
         </div>
-      </Container>
+      )}
     </div>
   );
 }

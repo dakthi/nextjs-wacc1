@@ -25,9 +25,11 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.trim().toLowerCase()
     const results: SearchResult[] = []
 
-    // Search Programs
-    try {
-      const programs = await prisma.program.findMany({
+    // Only search database if DATABASE_URL is available
+    if (process.env.DATABASE_URL) {
+      // Search Programs
+      try {
+        const programs = await prisma.program.findMany({
         where: {
           active: true,
           OR: [
@@ -169,6 +171,7 @@ export async function GET(request: NextRequest) {
     } catch (error) {
       console.error('Error searching FAQ:', error)
     }
+    } // End of DATABASE_URL check
 
     // Add static page results based on search terms
     const staticPages = [

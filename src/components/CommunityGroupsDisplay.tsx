@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { processFacilityImage } from '@/lib/image-fallback'
 
 interface CommunityGroup {
   id: number
@@ -88,7 +87,7 @@ export default function CommunityGroupsDisplay() {
       {group.imageUrl && (
         <div className="relative h-48 w-full">
           <Image
-            src={processFacilityImage(group.imageUrl, group.title) || '/img/80-chairs.jpeg'}
+            src={group.imageUrl || '/img/80-chairs.jpeg'}
             alt={group.title}
             fill
             className="object-cover"
