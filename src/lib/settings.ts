@@ -153,80 +153,63 @@ export async function getSetting(key: string, defaultValue: any = null): Promise
   return settings[key] ?? defaultValue
 }
 
-// Client-side settings hook for use in React components
-export function useSettings() {
-  // This would typically use React Query or SWR for caching
-  // For now, we'll create a simple fetch function
-  const fetchSettings = async (): Promise<SiteSettings> => {
-    try {
-      const response = await fetch('/api/settings')
-      if (!response.ok) throw new Error('Failed to fetch settings')
+// Client-side settings fetch function for use in React components
+export async function fetchClientSettings(): Promise<SiteSettings> {
+  try {
+    const response = await fetch('/api/settings')
+    if (!response.ok) throw new Error('Failed to fetch settings')
+    
+    const settingsArray = await response.json()
+    const settingsMap = new Map<string, any>([
+      ['site_title', 'West Acton Community Centre'],
+      ['site_description', 'A vibrant community centre serving West Acton and surrounding areas'],
+      ['contact_phone', '+44 20 1234 5678'],
+      ['contact_email', 'info@westactoncc.org.uk'],
+      ['address', 'West Acton Community Centre, High Street, London W3'],
+      ['social_facebook', ''],
+      ['social_twitter', ''],
+      ['social_instagram', ''],
+      ['booking_enabled', true],
+      ['maintenance_mode', false],
+      ['residents_served', '2,000+'],
+      ['weekly_programs', '15+'],
+      ['main_hall_capacity', '120'],
+      ['opening_hours_text', '7 days'],
+      ['opening_hours_details', 'Open Monday to Sunday, 7am-11pm'],
+      ['hero_subtitle', 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.'],
+      ['hero_description', 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.'],
+      ['hero_background_image', '/img/entrance.jpeg'],
+      ['hero_cta_button_text', 'Explore Our Facilities'],
+      ['hero_cta_button_link', '/facilities']
+    ])
+
+    settingsArray.forEach((setting: any) => {
+      let value = setting.value
       
-      const settingsArray = await response.json()
-      const settingsMap = new Map<string, any>([
-        ['site_title', 'West Acton Community Centre'],
-        ['site_description', 'A vibrant community centre serving West Acton and surrounding areas'],
-        ['contact_phone', '+44 20 1234 5678'],
-        ['contact_email', 'info@westactoncc.org.uk'],
-        ['address', 'West Acton Community Centre, High Street, London W3'],
-        ['social_facebook', ''],
-        ['social_twitter', ''],
-        ['social_instagram', ''],
-        ['booking_enabled', true],
-        ['maintenance_mode', false]
-      ])
-
-      settingsArray.forEach((setting: any) => {
-        let value = setting.value
-        
-        switch (setting.type) {
-          case 'boolean':
-            value = value === 'true'
-            break
-          case 'number':
-            value = value ? parseFloat(value) : 0
-            break
-          case 'json':
-            try {
-              value = value ? JSON.parse(value) : null
-            } catch {
-              value = null
-            }
-            break
-        }
-        
-        settingsMap.set(setting.key, value)
-      })
-
-      return Object.fromEntries(settingsMap) as SiteSettings
-    } catch (error) {
-      console.error('Failed to fetch settings:', error)
-      return {
-        site_title: 'West Acton Community Centre',
-        site_description: 'A vibrant community centre serving West Acton and surrounding areas',
-        contact_phone: '+44 20 1234 5678',
-        contact_email: 'info@westactoncc.org.uk',
-        address: 'West Acton Community Centre, High Street, London W3',
-        social_facebook: '',
-        social_twitter: '',
-        social_instagram: '',
-        booking_enabled: true,
-        maintenance_mode: false,
-        residents_served: '2,000+',
-        weekly_programs: '15+',
-        main_hall_capacity: '120',
-        opening_hours_text: '7 days',
-        opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
-        hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
-        hero_description: 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.',
-        hero_background_image: '/img/entrance.jpeg',
-        hero_cta_button_text: 'Explore Our Facilities',
-        hero_cta_button_link: '/facilities'
+      switch (setting.type) {
+        case 'boolean':
+          value = value === 'true'
+          break
+        case 'number':
+          value = value ? parseFloat(value) : 0
+          break
+        case 'json':
+          try {
+            value = value ? JSON.parse(value) : null
+          } catch {
+            value = null
+          }
+          break
       }
-    }
-  }
+      
+      settingsMap.set(setting.key, value)
+    })
 
-  return { fetchSettings }
+    return Object.fromEntries(settingsMap) as SiteSettings
+  } catch (error) {
+    console.error('Failed to fetch settings:', error)
+    return getDefaultSettings()
+  }
 }
 
 // Clear settings cache (useful after updates)
