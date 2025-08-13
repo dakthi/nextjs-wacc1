@@ -7,6 +7,9 @@ services:
     environment:
       DATABASE_URL: postgres://wacc_user:kNiN4321@db:5432/wacc_cms_local
       NEXTAUTH_SECRET: "your_very_secure_random_string_here"
+      UPLOAD_PATH: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       - db
     networks:
@@ -31,3 +34,4 @@ networks:
 
 volumes:
   cms_db_data:
+  uploads_data:

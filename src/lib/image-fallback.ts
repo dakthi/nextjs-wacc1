@@ -9,10 +9,12 @@
 export function imageExists(imagePath: string): boolean {
   if (typeof window !== 'undefined') {
     // Client-side: assume image exists, will handle errors in component
+    console.log('[Image Fallback] Client-side check, assuming image exists:', imagePath)
     return true
   }
   
   if (!imagePath || !imagePath.startsWith('/uploads/')) {
+    console.log('[Image Fallback] Invalid path for existence check:', imagePath)
     return false
   }
   
@@ -20,8 +22,11 @@ export function imageExists(imagePath: string): boolean {
     const fs = require('fs')
     const path = require('path')
     const fullPath = path.join(process.cwd(), 'public', imagePath)
-    return fs.existsSync(fullPath)
-  } catch {
+    const exists = fs.existsSync(fullPath)
+    console.log('[Image Fallback] Checking existence of:', fullPath, '- Result:', exists)
+    return exists
+  } catch (error) {
+    console.error('[Image Fallback] Error checking image existence:', error)
     return false
   }
 }
@@ -89,21 +94,27 @@ export function getProgramFallbackImage(programName?: string | null): string {
 export function processFacilityImage(imageUrl: string | null, facilityName?: string): string | null {
   // If no image URL provided, return fallback
   if (!imageUrl) {
-    return getFacilityFallbackImage(facilityName)
+    const fallback = getFacilityFallbackImage(facilityName)
+    console.log(`[Image Fallback] No image for facility '${facilityName}', using fallback:`, fallback)
+    return fallback
   }
   
   // If it's not an upload path, return as is (assumes it's a static image)
   if (!imageUrl.startsWith('/uploads/')) {
+    console.log(`[Image Fallback] Using static image for facility '${facilityName}':`, imageUrl)
     return imageUrl
   }
   
   // Check if uploaded image exists
   if (imageExists(imageUrl)) {
+    console.log(`[Image Fallback] Found uploaded image for facility '${facilityName}':`, imageUrl)
     return imageUrl
   }
   
   // If uploaded image doesn't exist, return fallback
-  return getFacilityFallbackImage(facilityName)
+  const fallback = getFacilityFallbackImage(facilityName)
+  console.warn(`[Image Fallback] Upload missing for facility '${facilityName}' at ${imageUrl}, using fallback:`, fallback)
+  return fallback
 }
 
 /**
@@ -112,19 +123,25 @@ export function processFacilityImage(imageUrl: string | null, facilityName?: str
 export function processProgramImage(imageUrl: string | null, programName?: string): string | null {
   // If no image URL provided, return fallback
   if (!imageUrl) {
-    return getProgramFallbackImage(programName)
+    const fallback = getProgramFallbackImage(programName)
+    console.log(`[Image Fallback] No image for program '${programName}', using fallback:`, fallback)
+    return fallback
   }
   
   // If it's not an upload path, return as is (assumes it's a static image)
   if (!imageUrl.startsWith('/uploads/')) {
+    console.log(`[Image Fallback] Using static image for program '${programName}':`, imageUrl)
     return imageUrl
   }
   
   // Check if uploaded image exists
   if (imageExists(imageUrl)) {
+    console.log(`[Image Fallback] Found uploaded image for program '${programName}':`, imageUrl)
     return imageUrl
   }
   
   // If uploaded image doesn't exist, return fallback
-  return getProgramFallbackImage(programName)
+  const fallback = getProgramFallbackImage(programName)
+  console.warn(`[Image Fallback] Upload missing for program '${programName}' at ${imageUrl}, using fallback:`, fallback)
+  return fallback
 }

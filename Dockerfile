@@ -37,6 +37,9 @@ COPY --from=builder /app/prisma ./prisma
 # Create uploads volume directory
 RUN mkdir -p /app/uploads
 
+# Set environment variable for consistent upload path
+ENV UPLOAD_PATH=/app/uploads
+
 # Expose Next.js port
 EXPOSE 3000
 

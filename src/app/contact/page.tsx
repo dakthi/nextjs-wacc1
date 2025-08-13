@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma";
 import { generateSEOMetadata } from "@/lib/seo";
 import { getSettings } from "@/lib/settings";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return generateSEOMetadata({
     title: "Contact & Booking",

@@ -44,12 +44,15 @@ export default function FileUpload({
   }
 
   const uploadFile = async (file: File, altText = "", caption = "") => {
+    console.log('[FileUpload] Starting upload for:', file.name, 'Size:', file.size)
     // Validate file before upload
     const validation = validateImageFile(file)
     if (!validation.isValid) {
+      console.error('[FileUpload] Validation failed:', validation.error)
       alert(`Upload failed: ${validation.error}`)
       return
     }
+    console.log('[FileUpload] File validation passed')
 
     setUploading(true)
     
@@ -62,24 +65,43 @@ export default function FileUpload({
       formData.append('file', file)
       formData.append('altText', finalAltText)
       formData.append('caption', caption)
+      console.log('[FileUpload] FormData prepared, sending to API')
 
       const response = await fetch('/api/media', {
         method: 'POST',
         body: formData
       })
+      console.log('[FileUpload] Response status:', response.status)
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Upload failed')
+        let errorMessage = 'Upload failed'
+        try {
+          const error = await response.json()
+          errorMessage = error.error || errorMessage
+          console.error('[FileUpload] API error response:', error)
+        } catch (e) {
+          // Response is not JSON (likely HTML error page)
+          console.error('[FileUpload] Failed to parse error response, likely HTML:', e)
+          if (response.status === 401) {
+            errorMessage = 'Unauthorized. Please log in to upload files.'
+          } else if (response.status === 413) {
+            errorMessage = 'File too large'
+          } else {
+            errorMessage = `Upload failed (${response.status})`
+          }
+        }
+        throw new Error(errorMessage)
       }
 
       const mediaItem = await response.json()
+      console.log('[FileUpload] Upload successful:', mediaItem)
       onFileSelect(mediaItem)
     } catch (error) {
-      console.error('Error uploading file:', error)
+      console.error('[FileUpload] Error uploading file:', error)
       alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setUploading(false)
+      console.log('[FileUpload] Upload process completed')
     }
   }
 

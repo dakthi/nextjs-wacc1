@@ -7,6 +7,8 @@ import BookingForm from "@/components/BookingForm";
 import { processFacilityImage } from "@/lib/image-fallback";
 import { generateSEOMetadata } from "@/lib/seo";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   return generateSEOMetadata({
     title: "Facilities & Room Hire",
