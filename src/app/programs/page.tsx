@@ -130,12 +130,15 @@ export default async function Programs() {
 
   const settings = await getSettings()
 
+  // Get hero image from settings or use fallback
+  const heroImage = settings.programs_hero_image || "/img/IMG_1290.jpeg"
+
   return (
     <div>
       <TextOnlyHero 
         title="Programmes & Activities"
         subtitle="15+ regular programmes every week for all ages and interests"
-        backgroundImage="/img/IMG_1290.jpeg"
+        backgroundImage={heroImage}
       />
 
       <BenefitPrograms
