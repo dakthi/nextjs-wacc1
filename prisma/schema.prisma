@@ -134,15 +134,21 @@ model FaqItem {
 }
 
 model MediaItem {
-  id           Int      @id @default(autoincrement())
-  filename     String
-  originalName String   @map("original_name")
-  filePath     String   @map("file_path")
-  fileType     String   @map("file_type")
-  fileSize     Int?     @map("file_size")
-  altText      String?  @map("alt_text")
-  caption      String?
-  uploadedAt   DateTime @default(now()) @map("uploaded_at")
+  id             Int      @id @default(autoincrement())
+  filename       String
+  originalName   String   @map("original_name")
+  filePath       String   @map("file_path")
+  fileType       String   @map("file_type")
+  fileSize       Int?     @map("file_size")
+  width          Int?
+  height         Int?
+  thumbnailPath  String?  @map("thumbnail_path")
+  thumbnailSize  Int?     @map("thumbnail_size")
+  optimizedPath  String?  @map("optimized_path")
+  optimizedSize  Int?     @map("optimized_size")
+  altText        String?  @map("alt_text")
+  caption        String?
+  uploadedAt     DateTime @default(now()) @map("uploaded_at")
 
   @@map("media_library")
 }

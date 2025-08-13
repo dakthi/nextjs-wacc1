@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import React from "react";
 
 interface SplitBannerSection {
@@ -28,7 +28,7 @@ export const SplitBanner = (props: Readonly<SplitBannerProps>) => {
         <div key={section.id} className="relative flex-1 min-h-[25vh] sm:min-h-full">
           {/* Background Image */}
           <div className="absolute inset-0">
-            <Image
+            <OptimizedImage
               src={section.image}
               fill
               alt={section.title}

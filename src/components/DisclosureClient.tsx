@@ -7,7 +7,7 @@ import {
 } from "@headlessui/react";
 
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface LinkProps {
   text: string;
@@ -43,7 +43,7 @@ export function DisclosureClient(props: Readonly<DisclosureClientProps>) {
           <Link href={logo.href || "/"}>
             <span className="flex items-center space-x-2 text-2xl font-medium text-black">
               <span>
-                <Image
+                <OptimizedImage
                   src={logo.image.url}
                   alt={logo.image.alternativeText || logo.image.name}
                   width={32}

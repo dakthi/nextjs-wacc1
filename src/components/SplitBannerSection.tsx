@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import React from "react";
 
 type BannerItem = {
@@ -29,7 +29,7 @@ export const SplitBannerSection = ({ items }: Readonly<SplitBannerSectionProps>)
               className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-lg"
             >
               {/* Background image */}
-              <Image
+              <OptimizedImage
                 src={imageSrc}
                 alt={item.title}
                 fill

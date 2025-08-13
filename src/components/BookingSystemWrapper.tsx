@@ -267,7 +267,7 @@ export function BookingSystemWrapper() {
                     <span>👥 {facility.capacity} people</span>
                   )}
                   {facility.hourlyRate && (
-                    <span>💷 £{facility.hourlyRate}/hour</span>
+                    <span>💷 £{facility.hourlyRate.toString()}/hour</span>
                   )}
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Container } from "@/components/Container";
 import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/24/solid";
@@ -103,7 +103,7 @@ export default async function Faq() {
                           {item.imageUrl && (
                             <div className="flex justify-center md:justify-end">
                               <div className="w-full max-w-sm">
-                                <Image
+                                <OptimizedImage
                                   src={item.imageUrl}
                                   alt={`Image for ${item.question}`}
                                   width={300}

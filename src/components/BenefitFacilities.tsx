@@ -1,6 +1,6 @@
-import Image from "next/image";
 import React from "react";
 import { Container } from "@/components/Container";
+import OptimizedImage from "@/components/OptimizedImage";
 
 interface FacilityCard {
   id: number;
@@ -29,8 +29,8 @@ export const BenefitFacilities = (props: Readonly<BenefitFacilitiesProps>) => {
   return (
     <section className="min-h-screen flex items-center py-8 lg:py-16 bg-white">
       <Container className="w-full">
-        {/* Centered content column with wide margins */}
-        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+        {/* Centered content column */}
+        <div className="max-w-6xl mx-auto">
           {/* Large, centered page title */}
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center mb-4 lg:mb-8">
             {title}
@@ -77,7 +77,7 @@ export const BenefitFacilities = (props: Readonly<BenefitFacilitiesProps>) => {
                 {/* Compact horizontal image area with overlaid View button */}
                 <div className="relative h-32 lg:h-40 bg-gray-200">
                   {facility.imageUrl ? (
-                    <Image
+                    <OptimizedImage
                       src={facility.imageUrl}
                       fill
                       alt={facility.name}
@@ -112,7 +112,7 @@ export const BenefitFacilities = (props: Readonly<BenefitFacilitiesProps>) => {
                     
                     {facility.hourlyRate && (
                       <div className="bg-gray-50 p-1 lg:p-2 rounded text-center">
-                        <div className="text-primary-600 font-bold text-sm lg:text-base">£{facility.hourlyRate}</div>
+                        <div className="text-primary-600 font-bold text-sm lg:text-base">£{facility.hourlyRate.toString()}</div>
                         <div className="text-gray-600 text-xs">per hour</div>
                       </div>
                     )}

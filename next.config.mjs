@@ -1,10 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    domains: [
+      'images.unsplash.com',
+      'bucket-wacc1.f47d23c072e7b2f871ecca11e36e0b25.r2.cloudflarestorage.com',
+    ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'bucket-wacc1.f47d23c072e7b2f871ecca11e36e0b25.r2.cloudflarestorage.com',
       },
     ],
   },

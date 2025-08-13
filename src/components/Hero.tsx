@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { SiteSettings } from "@/lib/settings";
 
 interface HeroProps {
@@ -17,7 +17,7 @@ export function Hero({ settings, backgroundImage }: HeroProps) {
     <div className="relative w-full h-screen overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <Image
+        <OptimizedImage
           src={settings?.hero_background_image || backgroundImage || "/img/entrance.jpeg"}
           alt={`${siteTitle} Hero Background`}
           fill

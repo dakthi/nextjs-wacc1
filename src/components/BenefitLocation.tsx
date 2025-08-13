@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import React from "react";
 import { Container } from "@/components/Container";
 
@@ -57,7 +57,7 @@ export const BenefitLocation = (props: Readonly<BenefitLocationProps>) => {
             {/* Image section */}
             {image && (
               <div className="relative h-80 rounded-lg overflow-hidden shadow-lg">
-                <Image
+                <OptimizedImage
                   src={typeof image === "string" ? image : image.src}
                   fill
                   alt="Location"

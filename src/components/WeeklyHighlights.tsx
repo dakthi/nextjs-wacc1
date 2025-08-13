@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Container } from "@/components/Container";
 
 interface Highlight {
@@ -54,7 +54,7 @@ function HighlightCard({
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       {/* Image */}
       <div className="relative h-48 bg-gray-100">
-        <Image
+        <OptimizedImage
           src={image}
           alt={title}
           fill

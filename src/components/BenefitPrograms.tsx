@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import React from "react";
 import { Container } from "@/components/Container";
 import { processProgramImage } from "@/lib/image-fallback";
@@ -76,8 +76,8 @@ export const BenefitPrograms = (props: Readonly<BenefitProgramsProps>) => {
   return (
     <section className="min-h-screen flex items-center py-8 lg:py-16 bg-white">
       <Container className="w-full">
-        {/* Centered content column with wide margins */}
-        <div className="max-w-6xl mx-auto px-4 lg:px-8">
+        {/* Centered content column */}
+        <div className="max-w-6xl mx-auto">
           {/* Large, centered page title */}
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center mb-4 lg:mb-8">
             {title}
@@ -129,7 +129,7 @@ export const BenefitPrograms = (props: Readonly<BenefitProgramsProps>) => {
                 {/* Compact horizontal image area with overlaid info button */}
                 <div className="relative h-32 lg:h-40 bg-gray-200">
                   {program.imageUrl ? (
-                    <Image
+                    <OptimizedImage
                       src={processProgramImage(program.imageUrl, program.title) || "/img/poster-stayandplay.jpeg"}
                       fill
                       alt={program.title}

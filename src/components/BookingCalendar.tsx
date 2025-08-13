@@ -183,7 +183,7 @@ export default function BookingCalendar({ facility, onBookingSelect }: BookingCa
         </div>
         {facility.hourlyRate && (
           <p className="text-primary-100">
-            £{facility.hourlyRate}/hour
+            £{facility.hourlyRate.toString()}/hour
           </p>
         )}
       </div>

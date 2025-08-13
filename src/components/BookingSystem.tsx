@@ -171,7 +171,7 @@ export function BookingForm({ bookingData, facility, onBack, onSuccess }: Bookin
                 </span>
               </div>
               <p className="text-sm text-gray-500 mt-1">
-                £{facility.hourlyRate}/hour × {bookingData.totalHours} hours
+                £{facility.hourlyRate?.toString()}/hour × {bookingData.totalHours} hours
               </p>
             </div>
           )}

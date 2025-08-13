@@ -1,4 +1,4 @@
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import React from "react";
 import { Container } from "@/components/Container";
 import { VideoPlayer } from "./VideoPlayer";
@@ -55,7 +55,7 @@ export const Benefits = (props: Readonly<BenefitsProps>) => {
                   <VideoPlayer src={data.video} />
                 ) : data.image && (
                   <div className="relative w-full h-full">
-                    <Image
+                    <OptimizedImage
                       src={typeof data.image === "string" ? data.image : data.image.src}
                       fill
                       alt="Facility Image"

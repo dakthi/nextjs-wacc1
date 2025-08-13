@@ -4,6 +4,8 @@ import { existsSync } from 'fs'
 import path from 'path'
 import { prisma } from '@/lib/prisma'
 import { checkAuth } from '@/lib/auth-middleware'
+import { uploadRateLimiter, getClientIp } from '@/lib/rate-limiter'
+import { uploadToR2, isR2Configured, generateR2Key, deleteFromR2 } from '@/lib/r2-storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +50,30 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   console.log('[MEDIA API] Upload request received')
   try {
+    // Check rate limit
+    const clientIp = getClientIp(request)
+    const rateLimitResult = uploadRateLimiter.checkLimit(clientIp)
+    
+    if (!rateLimitResult.allowed) {
+      console.warn('[MEDIA API] Upload rejected - rate limit exceeded for IP:', clientIp)
+      const resetDate = new Date(rateLimitResult.resetTime)
+      return NextResponse.json(
+        { 
+          error: 'Too many uploads. Please try again later.',
+          resetTime: resetDate.toISOString(),
+          remaining: 0
+        },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '10',
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': resetDate.toISOString()
+          }
+        }
+      )
+    }
+    
     // Check authentication
     const isAuthed = await checkAuth(request)
     console.log('[MEDIA API] Auth check result:', isAuthed)
@@ -111,21 +137,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique filename
-    const timestamp = Date.now()
-    const extension = path.extname(file.name)
-    const nameWithoutExt = path.basename(file.name, extension)
-    const sanitizedName = nameWithoutExt.replace(/[^a-zA-Z0-9-_]/g, '_')
-    const filename = `${timestamp}_${sanitizedName}${extension}`
-
-    // Ensure upload directory exists - use env var for persistent storage
-    const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'public', 'uploads')
-    console.log('[MEDIA API] Upload directory:', uploadDir)
-    if (!existsSync(uploadDir)) {
-      console.log('[MEDIA API] Creating upload directory:', uploadDir)
-      await mkdir(uploadDir, { recursive: true })
-    }
-
     // Get file bytes for validation and saving
     console.log('[MEDIA API] Reading file bytes for validation')
     const bytes = await file.arrayBuffer()
@@ -144,40 +155,71 @@ export async function POST(request: NextRequest) {
     }
     console.log('[MEDIA API] File signature validation passed')
 
-    // Atomic file operation: write to temp file first, then rename
-    const tempFilename = `${filename}.tmp.${Date.now()}.${Math.random().toString(36).substr(2, 9)}`
-    const tempFilePath = path.join(uploadDir, tempFilename)
-    const finalFilePath = path.join(uploadDir, filename)
-    
-    console.log('[MEDIA API] Writing to temporary file:', tempFilePath)
-    await writeFile(tempFilePath, Buffer.from(bytes))
-    
-    // Check if final filename already exists and handle collision
-    let actualFilename = filename
-    let actualFilePath = finalFilePath
-    let counter = 1
-    
-    while (existsSync(actualFilePath)) {
-      const nameWithoutExt = path.basename(filename, path.extname(filename))
-      const ext = path.extname(filename)
-      actualFilename = `${nameWithoutExt}_${counter}${ext}`
-      actualFilePath = path.join(uploadDir, actualFilename)
-      counter++
-      console.log('[MEDIA API] File exists, trying:', actualFilename)
-    }
-    
-    // Atomic rename operation
-    console.log('[MEDIA API] Atomically moving to final location:', actualFilePath)
-    await rename(tempFilePath, actualFilePath)
-    console.log('[MEDIA API] File saved successfully as:', actualFilename)
+    let fileUrl: string
+    let storageKey: string
 
-    // Create database record with actual filename (may differ due to collision handling)
+    // Check if R2 is configured
+    if (isR2Configured()) {
+      console.log('[MEDIA API] Using R2 storage')
+      
+      // Generate R2 key
+      storageKey = generateR2Key(file.name, 'uploads')
+      
+      try {
+        // Upload to R2
+        const { url } = await uploadToR2(
+          storageKey,
+          Buffer.from(bytes),
+          file.type,
+          {
+            originalName: file.name,
+            uploadedAt: new Date().toISOString(),
+            altText: altText || '',
+            caption: caption || ''
+          }
+        )
+        fileUrl = url
+        console.log('[MEDIA API] File uploaded to R2:', storageKey)
+      } catch (r2Error) {
+        console.error('[MEDIA API] R2 upload failed:', r2Error)
+        return NextResponse.json(
+          { error: 'Failed to upload file to cloud storage' },
+          { status: 500 }
+        )
+      }
+    } else {
+      console.log('[MEDIA API] Using local storage (R2 not configured)')
+      
+      // Fallback to local storage
+      const timestamp = Date.now()
+      const extension = path.extname(file.name)
+      const nameWithoutExt = path.basename(file.name, extension)
+      const sanitizedName = nameWithoutExt.replace(/[^a-zA-Z0-9-_]/g, '_')
+      const filename = `${timestamp}_${sanitizedName}${extension}`
+      
+      const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'public', 'uploads')
+      console.log('[MEDIA API] Upload directory:', uploadDir)
+      
+      if (!existsSync(uploadDir)) {
+        console.log('[MEDIA API] Creating upload directory:', uploadDir)
+        await mkdir(uploadDir, { recursive: true })
+      }
+      
+      const filePath = path.join(uploadDir, filename)
+      await writeFile(filePath, Buffer.from(bytes))
+      
+      storageKey = filename
+      fileUrl = `/api/media/file/${filename}`
+      console.log('[MEDIA API] File saved locally as:', filename)
+    }
+
+    // Create database record
     try {
       const mediaItem = await prisma.mediaItem.create({
         data: {
-          filename: actualFilename,
+          filename: storageKey,
           originalName: file.name,
-          filePath: `/api/media/file/${actualFilename}`,
+          filePath: fileUrl,
           fileType: file.type,
           fileSize: file.size,
           altText: altText || null,
@@ -190,16 +232,38 @@ export async function POST(request: NextRequest) {
         filename: mediaItem.filename,
         path: mediaItem.filePath
       })
-      return NextResponse.json(mediaItem, { status: 201 })
+      
+      // Add rate limit info to response headers
+      const response = NextResponse.json(mediaItem, { status: 201 })
+      response.headers.set('X-RateLimit-Limit', '10')
+      response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString())
+      response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.resetTime).toISOString())
+      
+      return response
     } catch (dbError) {
       // Database failed, clean up the file
-      console.error('[MEDIA API] Database error, cleaning up file:', actualFilePath)
-      try {
-        await unlink(actualFilePath)
-        console.log('[MEDIA API] File cleanup successful')
-      } catch (cleanupError) {
-        console.error('[MEDIA API] File cleanup failed:', cleanupError)
+      console.error('[MEDIA API] Database error, cleaning up uploaded file')
+      
+      // Clean up from R2 or local storage
+      if (isR2Configured()) {
+        try {
+          await deleteFromR2(storageKey)
+          console.log('[MEDIA API] R2 file cleanup successful')
+        } catch (cleanupError) {
+          console.error('[MEDIA API] R2 file cleanup failed:', cleanupError)
+        }
+      } else {
+        // Local storage cleanup
+        const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'public', 'uploads')
+        const filePath = path.join(uploadDir, storageKey)
+        try {
+          await unlink(filePath)
+          console.log('[MEDIA API] Local file cleanup successful')
+        } catch (cleanupError) {
+          console.error('[MEDIA API] Local file cleanup failed:', cleanupError)
+        }
       }
+      
       throw dbError
     }
   } catch (error) {
@@ -214,6 +278,87 @@ export async function POST(request: NextRequest) {
     console.error('[MEDIA API] Unexpected error in media upload:', error)
     return NextResponse.json(
       { error: 'An unexpected error occurred' },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE /api/media - Delete a media item
+export async function DELETE(request: NextRequest) {
+  try {
+    // Check authentication
+    const isAuthed = await checkAuth(request)
+    if (!isAuthed) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get media item ID from query params
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Media item ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Get media item from database
+    const mediaItem = await prisma.mediaItem.findUnique({
+      where: { id: parseInt(id) }
+    })
+
+    if (!mediaItem) {
+      return NextResponse.json(
+        { error: 'Media item not found' },
+        { status: 404 }
+      )
+    }
+
+    // Delete from storage (R2 or local)
+    if (isR2Configured()) {
+      // Extract key from URL if it's an R2 URL
+      const key = mediaItem.filePath.startsWith('http') 
+        ? mediaItem.filename // Use stored key
+        : mediaItem.filename
+      
+      try {
+        await deleteFromR2(key)
+        console.log('[MEDIA API] Deleted from R2:', key)
+      } catch (error) {
+        console.error('[MEDIA API] Failed to delete from R2:', error)
+        // Continue with database deletion even if R2 deletion fails
+      }
+    } else {
+      // Delete from local storage
+      const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'public', 'uploads')
+      const filePath = path.join(uploadDir, mediaItem.filename)
+      
+      try {
+        if (existsSync(filePath)) {
+          await unlink(filePath)
+          console.log('[MEDIA API] Deleted local file:', filePath)
+        }
+      } catch (error) {
+        console.error('[MEDIA API] Failed to delete local file:', error)
+        // Continue with database deletion even if file deletion fails
+      }
+    }
+
+    // Delete from database
+    await prisma.mediaItem.delete({
+      where: { id: parseInt(id) }
+    })
+
+    console.log('[MEDIA API] Media item deleted:', id)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[MEDIA API] Error deleting media item:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete media item' },
       { status: 500 }
     )
   }

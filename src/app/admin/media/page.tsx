@@ -24,10 +24,24 @@ export default function MediaLibrary() {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [editingMetadata, setEditingMetadata] = useState(false)
   const [formData, setFormData] = useState({ altText: '', caption: '' })
+  const [storageStatus, setStorageStatus] = useState<any>(null)
 
   useEffect(() => {
     loadMediaItems()
+    checkStorageStatus()
   }, [])
+
+  const checkStorageStatus = async () => {
+    try {
+      const response = await fetch('/api/media/status')
+      if (response.ok) {
+        const status = await response.json()
+        setStorageStatus(status)
+      }
+    } catch (error) {
+      console.error('Error checking storage status:', error)
+    }
+  }
 
   const loadMediaItems = async () => {
     try {
@@ -45,6 +59,32 @@ export default function MediaLibrary() {
 
   const handleNewUpload = (newItem: MediaItem) => {
     setMediaItems(prev => [newItem, ...prev])
+  }
+
+  const deleteItem = async (item: MediaItem) => {
+    if (!confirm(`Delete "${item.originalName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/media?id=${item.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        setMediaItems(prev => prev.filter(i => i.id !== item.id))
+        if (selectedItem?.id === item.id) {
+          setSelectedItem(null)
+        }
+        alert('Media item deleted successfully')
+      } else {
+        const error = await response.json()
+        alert(`Failed to delete: ${error.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error deleting media item:', error)
+      alert('Failed to delete media item')
+    }
   }
 
   const selectItem = (item: MediaItem) => {
@@ -81,25 +121,6 @@ export default function MediaLibrary() {
     }
   }
 
-  const deleteItem = async (item: MediaItem) => {
-    if (!confirm(`Are you sure you want to delete "${item.originalName}"?`)) return
-
-    try {
-      const response = await fetch(`/api/media/${item.id}`, {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        setMediaItems(prev => prev.filter(i => i.id !== item.id))
-        if (selectedItem?.id === item.id) {
-          setSelectedItem(null)
-        }
-      }
-    } catch (error) {
-      console.error('Error deleting item:', error)
-    }
-  }
-
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -128,6 +149,39 @@ export default function MediaLibrary() {
               Upload and manage your images and media files
             </p>
           </div>
+
+          {/* Storage Status */}
+          {storageStatus && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  {storageStatus.storageType === 'r2' ? (
+                    <svg className="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="h-5 w-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-800">
+                    Storage Mode: {storageStatus.storageType === 'r2' ? 'Cloudflare R2 (Cloud)' : 'Local File System'}
+                  </p>
+                  {storageStatus.storageType === 'r2' ? (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Bucket: {storageStatus.r2.bucketName} | Region: {storageStatus.r2.region}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Files are stored locally. Configure R2 in .env for cloud storage.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Upload Section */}
           <div className="bg-white shadow rounded-lg p-6">

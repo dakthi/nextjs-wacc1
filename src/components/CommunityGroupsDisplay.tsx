@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
+import OptimizedImage from '@/components/OptimizedImage'
 
 interface CommunityGroup {
   id: number
@@ -86,15 +86,12 @@ export default function CommunityGroupsDisplay() {
     <div className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 ${group.featured ? 'ring-2 ring-yellow-400' : ''}`}>
       {group.imageUrl && (
         <div className="relative h-48 w-full">
-          <Image
+          <OptimizedImage
             src={group.imageUrl || '/img/80-chairs.jpeg'}
             alt={group.title}
             fill
             className="object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement
-              target.src = '/img/80-chairs.jpeg'
-            }}
+            fallback="/img/80-chairs.jpeg"
           />
           {group.featured && (
             <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-medium">

@@ -10,7 +10,7 @@ export function Footer() {
 
   useEffect(() => {
     fetchSettings().then(setSettings);
-  }, []);
+  }, [fetchSettings]);
 
   if (!settings) {
     return (

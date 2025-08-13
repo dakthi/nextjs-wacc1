@@ -31,6 +31,8 @@ export default function FileUpload({
   showMediaLibrary = true
 }: FileUploadProps) {
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [showLibrary, setShowLibrary] = useState(false)
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [loadingLibrary, setLoadingLibrary] = useState(false)
@@ -40,7 +42,15 @@ export default function FileUpload({
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Create preview URL
+    const objectUrl = URL.createObjectURL(file)
+    setPreviewUrl(objectUrl)
+
     await uploadFile(file)
+    
+    // Clean up preview URL after upload
+    URL.revokeObjectURL(objectUrl)
+    setPreviewUrl(null)
   }
 
   const uploadFile = async (file: File, altText = "", caption = "") => {
@@ -135,7 +145,14 @@ export default function FileUpload({
     event.preventDefault()
     const file = event.dataTransfer.files[0]
     if (file) {
-      uploadFile(file)
+      // Create preview URL for dropped file
+      const objectUrl = URL.createObjectURL(file)
+      setPreviewUrl(objectUrl)
+      
+      uploadFile(file).then(() => {
+        URL.revokeObjectURL(objectUrl)
+        setPreviewUrl(null)
+      })
     }
   }
 
@@ -150,20 +167,27 @@ export default function FileUpload({
       </label>
 
       {/* Current Image Preview */}
-      {currentImage && (
+      {(currentImage || previewUrl) && (
         <div className="relative inline-block">
           <img
-            src={currentImage}
-            alt="Current"
-            className="h-20 w-20 object-cover rounded-lg border border-gray-300"
+            src={previewUrl || currentImage || ''}
+            alt={previewUrl ? "Preview" : "Current"}
+            className="h-32 w-32 object-cover rounded-lg border-2 border-gray-300 shadow-sm"
           />
-          <button
-            type="button"
-            onClick={() => onFileSelect({ filePath: '' } as MediaItem)}
-            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
-          >
-            ✕
-          </button>
+          {previewUrl && (
+            <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs font-medium">Preview</span>
+            </div>
+          )}
+          {!previewUrl && currentImage && (
+            <button
+              type="button"
+              onClick={() => onFileSelect({ filePath: '' } as MediaItem)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 shadow-md"
+            >
+              ✕
+            </button>
+          )}
         </div>
       )}
 
@@ -205,9 +229,17 @@ export default function FileUpload({
         </div>
 
         {uploading && (
-          <div className="mt-4">
+          <div className="mt-4 space-y-2">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="text-sm text-gray-600 mt-2">Uploading...</p>
+            <p className="text-sm text-gray-600">Uploading...</p>
+            {uploadProgress > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
