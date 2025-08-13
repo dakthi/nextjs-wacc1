@@ -37,6 +37,17 @@ let cacheTimestamp: number = 0
 const CACHE_DURATION = 30 * 1000 // 30 seconds for faster updates
 
 export async function getSettings(): Promise<SiteSettings> {
+  // During build time, return default settings without database connection
+  const isDuringBuild = process.env.NODE_ENV === 'production' && 
+    (process.env.SKIP_DATABASE_DURING_BUILD === 'true' || 
+     !process.env.DATABASE_URL || 
+     process.env.DATABASE_URL.includes('dummy'))
+
+  if (isDuringBuild) {
+    console.log('Build time detected, returning default settings without database connection')
+    return getDefaultSettings()
+  }
+
   const now = Date.now()
   
   // Return cached settings if still valid
@@ -108,28 +119,32 @@ export async function getSettings(): Promise<SiteSettings> {
     console.error('Failed to load site settings:', error)
     
     // Return default settings on error
-    return {
-      site_title: 'West Acton Community Centre',
-      site_description: 'A vibrant community centre serving West Acton and surrounding areas',
-      contact_phone: '+44 20 1234 5678',
-      contact_email: 'info@westactoncc.org.uk',
-      address: 'West Acton Community Centre, High Street, London W3',
-      social_facebook: '',
-      social_twitter: '',
-      social_instagram: '',
-      booking_enabled: true,
-      maintenance_mode: false,
-      residents_served: '2,000+',
-      weekly_programs: '15+',
-      main_hall_capacity: '120',
-      opening_hours_text: '7 days',
-      opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
-      hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
-      hero_description: 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.',
-      hero_background_image: '/img/entrance.jpeg',
-      hero_cta_button_text: 'Explore Our Facilities',
-      hero_cta_button_link: '/facilities'
-    }
+    return getDefaultSettings()
+  }
+}
+
+function getDefaultSettings(): SiteSettings {
+  return {
+    site_title: 'West Acton Community Centre',
+    site_description: 'A vibrant community centre serving West Acton and surrounding areas',
+    contact_phone: '+44 20 1234 5678',
+    contact_email: 'info@westactoncc.org.uk',
+    address: 'West Acton Community Centre, High Street, London W3',
+    social_facebook: '',
+    social_twitter: '',
+    social_instagram: '',
+    booking_enabled: true,
+    maintenance_mode: false,
+    residents_served: '2,000+',
+    weekly_programs: '15+',
+    main_hall_capacity: '120',
+    opening_hours_text: '7 days',
+    opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
+    hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
+    hero_description: 'From Stay & Play sessions for young families to martial arts, fitness classes, and cultural groups — we\'re here to bring our community together and support wellbeing for all ages.',
+    hero_background_image: '/img/entrance.jpeg',
+    hero_cta_button_text: 'Explore Our Facilities',
+    hero_cta_button_link: '/facilities'
   }
 }
 
