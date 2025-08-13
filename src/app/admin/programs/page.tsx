@@ -33,21 +33,57 @@ interface Program {
   }>
 }
 
-interface ProgramsPageSettings {
+interface CommunityGroup {
+  id: number
+  title: string
+  name?: string | null
+  description: string | null
+  category: string | null
+  meetingTime: string | null
+  meetingDay: string | null
+  contactName: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  imageUrl: string | null
+  websiteUrl: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  memberCount: number | null
+  ageGroup: string | null
+  language: string | null
+  fees: string | null
+  featured: boolean
+  displayOrder: number
+  active: boolean
+  createdAt: string | null
+  updatedAt: string | null
+}
+
+interface ActivitiesPageSettings {
   programs_hero_title: string
   programs_hero_subtitle: string
   programs_hero_image: string
 }
 
-export default function ProgramsManagement() {
-  const [programs, setPrograms] = useState<Program[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterCategory, setFilterCategory] = useState("")
+export default function ActivitiesManagement() {
+  const [activeTab, setActiveTab] = useState<'programs' | 'groups'>('programs')
   
-  // Programs page settings
-  const [pageSettings, setPageSettings] = useState<ProgramsPageSettings>({
+  // Programs state
+  const [programs, setPrograms] = useState<Program[]>([])
+  const [programsLoading, setProgramsLoading] = useState(true)
+  const [programsError, setProgramsError] = useState("")
+  const [programSearchTerm, setProgramSearchTerm] = useState("")
+  const [programFilterCategory, setProgramFilterCategory] = useState("")
+  
+  // Community Groups state
+  const [groups, setGroups] = useState<CommunityGroup[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(true)
+  const [groupsError, setGroupsError] = useState("")
+  const [groupSearchTerm, setGroupSearchTerm] = useState("")
+  const [groupFilterCategory, setGroupFilterCategory] = useState("")
+  
+  // Page settings state
+  const [pageSettings, setPageSettings] = useState<ActivitiesPageSettings>({
     programs_hero_title: "Programmes & Activities",
     programs_hero_subtitle: "15+ regular programmes every week for all ages and interests",
     programs_hero_image: "/img/IMG_1290.jpeg"
@@ -57,6 +93,7 @@ export default function ProgramsManagement() {
 
   useEffect(() => {
     fetchPrograms()
+    fetchGroups()
     fetchPageSettings()
   }, [])
 
@@ -67,39 +104,25 @@ export default function ProgramsManagement() {
       const data = await response.json()
       setPrograms(data)
     } catch (error) {
-      setError('Failed to load programs')
+      setProgramsError('Failed to load programs')
       console.error('Error fetching programs:', error)
     } finally {
-      setLoading(false)
+      setProgramsLoading(false)
     }
   }
 
-  const deleteProgram = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this program?')) return
-
+  const fetchGroups = async () => {
     try {
-      const response = await fetch(`/api/programs/${id}`, {
-        method: 'DELETE'
-      })
-      
-      if (!response.ok) throw new Error('Failed to delete program')
-      
-      // Refresh the list
-      fetchPrograms()
+      const response = await fetch('/api/community-groups')
+      if (!response.ok) throw new Error('Failed to fetch community groups')
+      const data = await response.json()
+      setGroups(data)
     } catch (error) {
-      console.error('Error deleting program:', error)
-      alert('Failed to delete program')
+      setGroupsError('Failed to load community groups')
+      console.error('Error fetching community groups:', error)
+    } finally {
+      setGroupsLoading(false)
     }
-  }
-
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      'early-years': 'bg-pink-100 text-pink-800',
-      'martial-arts': 'bg-red-100 text-red-800',
-      'education': 'bg-blue-100 text-blue-800',
-      'fitness': 'bg-green-100 text-green-800'
-    }
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800'
   }
 
   const fetchPageSettings = async () => {
@@ -145,7 +168,7 @@ export default function ProgramsManagement() {
 
       if (!response.ok) throw new Error('Failed to save settings')
 
-      setSettingsMessage("Programs page settings saved successfully!")
+      setSettingsMessage("Activities page settings saved successfully!")
       setTimeout(() => setSettingsMessage(""), 3000)
     } catch (error) {
       setSettingsMessage("Error saving settings. Please try again.")
@@ -155,26 +178,85 @@ export default function ProgramsManagement() {
     }
   }
 
-  const handlePageSettingChange = (field: keyof ProgramsPageSettings, value: string) => {
+  const handlePageSettingChange = (field: keyof ActivitiesPageSettings, value: string) => {
     setPageSettings(prev => ({
       ...prev,
       [field]: value
     }))
   }
 
-  // Filter programs based on search term and category
+  const deleteProgram = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this program?')) return
+
+    try {
+      const response = await fetch(`/api/programs/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete program')
+      
+      fetchPrograms()
+    } catch (error) {
+      console.error('Error deleting program:', error)
+      alert('Failed to delete program')
+    }
+  }
+
+  const deleteGroup = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this community group?')) return
+
+    try {
+      const response = await fetch(`/api/community-groups/${id}`, {
+        method: 'DELETE'
+      })
+      
+      if (!response.ok) throw new Error('Failed to delete community group')
+      
+      fetchGroups()
+    } catch (error) {
+      console.error('Error deleting community group:', error)
+      alert('Failed to delete community group')
+    }
+  }
+
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      'early-years': 'bg-pink-100 text-pink-800',
+      'martial-arts': 'bg-red-100 text-red-800',
+      'education': 'bg-blue-100 text-blue-800',
+      'fitness': 'bg-green-100 text-green-800',
+      'cultural': 'bg-purple-100 text-purple-800',
+      'community': 'bg-yellow-100 text-yellow-800',
+      'support': 'bg-indigo-100 text-indigo-800',
+    }
+    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+  }
+
+  // Filter programs
   const filteredPrograms = programs.filter(program => {
-    const matchesSearch = searchTerm === '' || 
-      program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      program.instructor?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = programSearchTerm === '' || 
+      program.title.toLowerCase().includes(programSearchTerm.toLowerCase()) ||
+      program.description?.toLowerCase().includes(programSearchTerm.toLowerCase()) ||
+      program.instructor?.toLowerCase().includes(programSearchTerm.toLowerCase())
     
-    const matchesCategory = filterCategory === '' || program.category === filterCategory
+    const matchesCategory = programFilterCategory === '' || program.category === programFilterCategory
     
     return matchesSearch && matchesCategory
   })
 
-  if (loading) {
+  // Filter community groups
+  const filteredGroups = groups.filter(group => {
+    const matchesSearch = groupSearchTerm === '' || 
+      group.title.toLowerCase().includes(groupSearchTerm.toLowerCase()) ||
+      group.description?.toLowerCase().includes(groupSearchTerm.toLowerCase()) ||
+      group.contactName?.toLowerCase().includes(groupSearchTerm.toLowerCase())
+    
+    const matchesCategory = groupFilterCategory === '' || group.category === groupFilterCategory
+    
+    return matchesSearch && matchesCategory
+  })
+
+  if (programsLoading || groupsLoading) {
     return (
       <AdminAuth>
         <AdminLayout>
@@ -192,22 +274,16 @@ export default function ProgramsManagement() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Programs Management</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Activities Management</h1>
               <p className="mt-1 text-sm text-gray-500">
-                Manage your community programs and activities
+                Manage your programs and community groups
               </p>
             </div>
-            <Link
-              href="/admin/programs/new"
-              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
-            >
-              Add New Program
-            </Link>
           </div>
 
-          {error && (
+          {(programsError || groupsError) && (
             <div className="bg-red-50 border border-red-200 rounded-md p-4">
-              <div className="text-sm text-red-600">{error}</div>
+              <div className="text-sm text-red-600">{programsError || groupsError}</div>
             </div>
           )}
 
@@ -219,12 +295,12 @@ export default function ProgramsManagement() {
             </div>
           )}
 
-          {/* Programs Page Settings */}
+          {/* Activities Page Settings */}
           <div className="bg-white shadow rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Programs Page Settings</h2>
-                <p className="text-sm text-gray-500">Configure the programs page hero section</p>
+                <h2 className="text-lg font-semibold text-gray-900">Activities Page Settings</h2>
+                <p className="text-sm text-gray-500">Configure the activities page hero section</p>
               </div>
               <button
                 onClick={savePageSettings}
@@ -238,7 +314,7 @@ export default function ProgramsManagement() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Programs Hero Title
+                  Activities Hero Title
                 </label>
                 <input
                   type="text"
@@ -251,7 +327,7 @@ export default function ProgramsManagement() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Programs Hero Subtitle
+                  Activities Hero Subtitle
                 </label>
                 <input
                   type="text"
@@ -272,127 +348,233 @@ export default function ProgramsManagement() {
                     }
                   }}
                   currentImage={pageSettings.programs_hero_image}
-                  label="Programs Hero Background Image"
+                  label="Activities Hero Background Image"
                   accept="image/*"
                 />
               </div>
             </div>
           </div>
 
-          {/* Search and Filter */}
-          <div className="bg-white shadow rounded-lg p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Programs
-                </label>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by title, description, or instructor..."
-                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Filter by Category
-                </label>
-                <select
-                  value={filterCategory}
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+          {/* Tabs */}
+          <div className="bg-white shadow rounded-lg">
+            <div className="border-b border-gray-200">
+              <nav className="-mb-px flex">
+                <button
+                  onClick={() => setActiveTab('programs')}
+                  className={`py-2 px-4 text-sm font-medium border-b-2 ${
+                    activeTab === 'programs'
+                      ? 'border-primary-500 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
                 >
-                  <option value="">All Categories</option>
-                  <option value="early-years">Early Years</option>
-                  <option value="martial-arts">Martial Arts</option>
-                  <option value="education">Education</option>
-                  <option value="fitness">Fitness</option>
-                </select>
-              </div>
+                  Programs ({programs.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('groups')}
+                  className={`py-2 px-4 text-sm font-medium border-b-2 ${
+                    activeTab === 'groups'
+                      ? 'border-primary-500 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Community Groups ({groups.length})
+                </button>
+              </nav>
             </div>
-          </div>
 
-          <div className="bg-white shadow overflow-hidden sm:rounded-md">
-            <ul className="divide-y divide-gray-200">
-              {filteredPrograms.map((program) => (
-                <li key={program.id}>
-                  <div className="px-4 py-4 sm:px-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <h3 className="text-lg font-medium text-gray-900">
-                            {program.title}
-                          </h3>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(program.category)}`}>
-                            {program.category}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                          {program.description}
-                        </p>
-                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                          {program.ageGroup && (
-                            <span>👥 {program.ageGroup}</span>
-                          )}
-                          {program.price && (
-                            <span>💷 {program.price}</span>
-                          )}
-                          {program.instructor && (
-                            <span>👨‍🏫 {program.instructor}</span>
-                          )}
-                        </div>
-                        {program.schedules.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs text-gray-400">
-                              {program.schedules.length} schedule{program.schedules.length !== 1 ? 's' : ''}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Link
-                          href={`/admin/programs/${program.id}/edit`}
-                          className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1 rounded text-sm font-medium"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => deleteProgram(program.id)}
-                          className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-1 rounded text-sm font-medium"
-                        >
-                          Delete
-                        </button>
-                      </div>
+            <div className="p-6">
+              {activeTab === 'programs' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900">Programs</h3>
+                    <Link
+                      href="/admin/programs/new"
+                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
+                    >
+                      Add New Program
+                    </Link>
+                  </div>
+
+                  {/* Search and Filter for Programs */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Search Programs
+                      </label>
+                      <input
+                        type="text"
+                        value={programSearchTerm}
+                        onChange={(e) => setProgramSearchTerm(e.target.value)}
+                        placeholder="Search by title, description, or instructor..."
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Filter by Category
+                      </label>
+                      <select
+                        value={programFilterCategory}
+                        onChange={(e) => setProgramFilterCategory(e.target.value)}
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      >
+                        <option value="">All Categories</option>
+                        <option value="early-years">Early Years</option>
+                        <option value="martial-arts">Martial Arts</option>
+                        <option value="education">Education</option>
+                        <option value="fitness">Fitness</option>
+                      </select>
                     </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          {filteredPrograms.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <div className="text-gray-400 text-4xl mb-4">📚</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm || filterCategory ? 'No programs found' : 'No programs yet'}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                {searchTerm || filterCategory 
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Get started by creating your first program.'
-                }
-              </p>
-              {!searchTerm && !filterCategory && (
-                <Link
-                  href="/admin/programs/new"
-                  className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
-                >
-                  Add New Program
-                </Link>
+                  {/* Programs List */}
+                  <div className="grid gap-6">
+                    {filteredPrograms.map((program) => (
+                      <div key={program.id} className="bg-gray-50 shadow rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-xl font-semibold text-gray-900">{program.title}</h3>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(program.category)}`}>
+                                {program.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </span>
+                              {!program.active && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  Inactive
+                                </span>
+                              )}
+                            </div>
+                            {program.description && (
+                              <p className="text-gray-600 mb-2">{program.description}</p>
+                            )}
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                              {program.ageGroup && <span>Age: {program.ageGroup}</span>}
+                              {program.price && <span>Price: {program.price}</span>}
+                              {program.instructor && <span>Instructor: {program.instructor}</span>}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <Link
+                              href={`/admin/programs/${program.id}/edit`}
+                              className="text-primary-600 hover:text-primary-900 text-sm font-medium uppercase"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => deleteProgram(program.id)}
+                              className="text-red-600 hover:text-red-900 text-sm font-medium uppercase"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'groups' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-900">Community Groups</h3>
+                    <Link
+                      href="/admin/community-groups/new"
+                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
+                    >
+                      Add New Group
+                    </Link>
+                  </div>
+
+                  {/* Search and Filter for Groups */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Search Groups
+                      </label>
+                      <input
+                        type="text"
+                        value={groupSearchTerm}
+                        onChange={(e) => setGroupSearchTerm(e.target.value)}
+                        placeholder="Search by title, description, or contact..."
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Filter by Category
+                      </label>
+                      <select
+                        value={groupFilterCategory}
+                        onChange={(e) => setGroupFilterCategory(e.target.value)}
+                        className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                      >
+                        <option value="">All Categories</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="community">Community</option>
+                        <option value="support">Support</option>
+                        <option value="education">Education</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Community Groups List */}
+                  <div className="grid gap-6">
+                    {filteredGroups.map((group) => (
+                      <div key={group.id} className="bg-gray-50 shadow rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-xl font-semibold text-gray-900">{group.title}</h3>
+                              {group.category && (
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(group.category)}`}>
+                                  {group.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                </span>
+                              )}
+                              {group.featured && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                  Featured
+                                </span>
+                              )}
+                              {!group.active && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                  Inactive
+                                </span>
+                              )}
+                            </div>
+                            {group.description && (
+                              <p className="text-gray-600 mb-2">{group.description}</p>
+                            )}
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                              {group.meetingTime && group.meetingDay && (
+                                <span>Meets: {group.meetingDay} at {group.meetingTime}</span>
+                              )}
+                              {group.memberCount && <span>Members: {group.memberCount}</span>}
+                              {group.contactName && <span>Contact: {group.contactName}</span>}
+                            </div>
+                          </div>
+                          <div className="flex gap-2 ml-4">
+                            <Link
+                              href={`/admin/community-groups/${group.id}/edit`}
+                              className="text-primary-600 hover:text-primary-900 text-sm font-medium uppercase"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => deleteGroup(group.id)}
+                              className="text-red-600 hover:text-red-900 text-sm font-medium uppercase"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          )}
+          </div>
         </div>
       </AdminLayout>
     </AdminAuth>
