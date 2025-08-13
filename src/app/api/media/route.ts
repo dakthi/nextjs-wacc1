@@ -9,6 +9,10 @@ import { uploadToR2, isR2Configured, generateR2Key, deleteFromR2 } from '@/lib/r
 
 export const dynamic = 'force-dynamic'
 
+// Configure route segment for file uploads  
+export const maxDuration = 60 // Maximum function duration: 60 seconds for large uploads
+export const runtime = 'nodejs' // Use Node.js runtime (not Edge Runtime)
+
 // Validate file magic numbers (file signatures) for security
 function validateFileSignature(buffer: ArrayBuffer, mimeType: string): boolean {
   const bytes = new Uint8Array(buffer.slice(0, 8))
