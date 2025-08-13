@@ -15,10 +15,31 @@ interface Note {
 }
 
 interface HomepageSettings {
+  // Site Info (moved from Settings)
+  site_title: string
+  site_description: string
+  
   // Hero Section
   hero_background_image: string
+  hero_subtitle: string
   hero_cta_button_text: string
   hero_cta_button_link: string
+  
+  // Contact Info (moved from Settings)
+  contact_phone: string
+  contact_email: string
+  address: string
+  
+  // Stats (moved from Settings)
+  residents_served: string
+  weekly_programs: string
+  community_residents: string
+  opening_hours_text: string
+  opening_hours_details: string
+  
+  // Social Media (moved from Settings)
+  social_facebook: string
+  social_instagram: string
   
   // Split Banner Section
   banner_programs_title: string
@@ -59,10 +80,31 @@ interface HomepageSettings {
 }
 
 const defaultSettings: HomepageSettings = {
+  // Site Info (moved from Settings)
+  site_title: "West Acton Community Centre",
+  site_description: "A vibrant community centre serving West Acton and surrounding areas",
+  
   // Hero Section
   hero_background_image: "/img/entrance.jpeg",
+  hero_subtitle: "Your local hub for education, leisure, and recreational programs. We serve over 2,000 residents in West Acton with 15+ regular programs every week.",
   hero_cta_button_text: "EXPLORE OUR PROGRAMS",
   hero_cta_button_link: "/programs",
+  
+  // Contact Info (moved from Settings)
+  contact_phone: "+44 20 1234 5678",
+  contact_email: "info@westactoncc.org.uk",
+  address: "West Acton Community Centre, High Street, London W3",
+  
+  // Stats (moved from Settings)
+  residents_served: "2,000+",
+  weekly_programs: "15+",
+  community_residents: "2,000+",
+  opening_hours_text: "7 days",
+  opening_hours_details: "Monday to Sunday, 7am-11pm",
+  
+  // Social Media (moved from Settings)
+  social_facebook: "",
+  social_instagram: "",
   
   // Split Banner Section
   banner_programs_title: "REGULAR PROGRAMMES",
@@ -119,45 +161,75 @@ export default function HomepageAdmin() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/admin/homepage')
-      if (response.ok) {
-        const data = await response.json()
-        // Map database field names back to frontend field names
-        const mappedData = {
-          // Hero Section
-          hero_background_image: data.heroVideoUrl,
-          hero_cta_button_text: data.heroButtonText,
-          hero_cta_button_link: data.heroButtonLink,
-          
-          // Split Banner Section
-          banner_programs_title: data.bannerProgramsTitle,
-          banner_programs_subtitle: data.bannerProgramsSubtitle,
-          banner_programs_image: data.bannerProgramsImage,
-          banner_facilities_title: data.bannerFacilitiesTitle,
-          banner_facilities_subtitle: data.bannerFacilitiesSubtitle,
-          
-          // Community Section
-          community_section_pretitle: data.communityPretitle,
-          community_section_title: data.communityTitle,
-          community_section_description: data.communityDescription,
-          
-          // Facilities Section
-          facilities_section_title: data.facilitiesTitle,
-          facilities_section_heading: data.facilitiesSectionHeading,
-          
-          // Location Section
-          location_section_title: data.locationTitle,
-          location_section_description: data.locationDescription,
-          location_section_contact: data.locationContact,
-          location_section_heading: data.locationSectionHeading,
-          location_section_image: data.locationImage,
-          
-          // Programs Section
-          programs_section_title: data.programsSectionTitle,
-          programs_button_text: data.programsViewAllText,
-        }
-        setSettings({ ...defaultSettings, ...mappedData })
-      }
+      const response = await fetch('/api/settings')
+      if (!response.ok) throw new Error('Failed to fetch settings')
+      const data = await response.json()
+      
+      const settings = data.reduce((acc: any, setting: any) => {
+        acc[setting.key] = setting.value
+        return acc
+      }, {})
+      
+      setSettings({
+        // Site Info
+        site_title: settings.site_title || defaultSettings.site_title,
+        site_description: settings.site_description || defaultSettings.site_description,
+        
+        // Hero Section
+        hero_background_image: settings.hero_background_image || defaultSettings.hero_background_image,
+        hero_subtitle: settings.hero_subtitle || defaultSettings.hero_subtitle,
+        hero_cta_button_text: settings.hero_cta_button_text || defaultSettings.hero_cta_button_text,
+        hero_cta_button_link: settings.hero_cta_button_link || defaultSettings.hero_cta_button_link,
+        
+        // Contact Info
+        contact_phone: settings.contact_phone || defaultSettings.contact_phone,
+        contact_email: settings.contact_email || defaultSettings.contact_email,
+        address: settings.address || defaultSettings.address,
+        
+        // Stats
+        residents_served: settings.residents_served || defaultSettings.residents_served,
+        weekly_programs: settings.weekly_programs || defaultSettings.weekly_programs,
+        community_residents: settings.community_residents || defaultSettings.community_residents,
+        opening_hours_text: settings.opening_hours_text || defaultSettings.opening_hours_text,
+        opening_hours_details: settings.opening_hours_details || defaultSettings.opening_hours_details,
+        
+        // Social Media
+        social_facebook: settings.social_facebook || defaultSettings.social_facebook,
+        social_instagram: settings.social_instagram || defaultSettings.social_instagram,
+        
+        // Other sections (keep existing functionality)
+        banner_programs_title: settings.banner_programs_title || defaultSettings.banner_programs_title,
+        banner_programs_subtitle: settings.banner_programs_subtitle || defaultSettings.banner_programs_subtitle,
+        banner_programs_image: settings.banner_programs_image || defaultSettings.banner_programs_image,
+        banner_facilities_title: settings.banner_facilities_title || defaultSettings.banner_facilities_title,
+        banner_facilities_subtitle: settings.banner_facilities_subtitle || defaultSettings.banner_facilities_subtitle,
+        
+        community_section_pretitle: settings.community_section_pretitle || defaultSettings.community_section_pretitle,
+        community_section_title: settings.community_section_title || defaultSettings.community_section_title,
+        community_section_description: settings.community_section_description || defaultSettings.community_section_description,
+        
+        facilities_section_title: settings.facilities_section_title || defaultSettings.facilities_section_title,
+        facilities_section_heading: settings.facilities_section_heading || defaultSettings.facilities_section_heading,
+        
+        location_section_title: settings.location_section_title || defaultSettings.location_section_title,
+        location_section_description: settings.location_section_description || defaultSettings.location_section_description,
+        location_section_contact: settings.location_section_contact || defaultSettings.location_section_contact,
+        location_section_heading: settings.location_section_heading || defaultSettings.location_section_heading,
+        location_section_image: settings.location_section_image || defaultSettings.location_section_image,
+        location_benefit_1_title: settings.location_benefit_1_title || defaultSettings.location_benefit_1_title,
+        location_benefit_1_desc: settings.location_benefit_1_desc || defaultSettings.location_benefit_1_desc,
+        location_benefit_2_title: settings.location_benefit_2_title || defaultSettings.location_benefit_2_title,
+        location_benefit_2_desc: settings.location_benefit_2_desc || defaultSettings.location_benefit_2_desc,
+        location_benefit_3_title: settings.location_benefit_3_title || defaultSettings.location_benefit_3_title,
+        location_benefit_3_desc: settings.location_benefit_3_desc || defaultSettings.location_benefit_3_desc,
+        location_button_1_text: settings.location_button_1_text || defaultSettings.location_button_1_text,
+        location_button_1_link: settings.location_button_1_link || defaultSettings.location_button_1_link,
+        location_button_2_text: settings.location_button_2_text || defaultSettings.location_button_2_text,
+        location_button_2_link: settings.location_button_2_link || defaultSettings.location_button_2_link,
+        
+        programs_section_title: settings.programs_section_title || defaultSettings.programs_section_title,
+        programs_button_text: settings.programs_button_text || defaultSettings.programs_button_text,
+      })
     } catch (error) {
       console.error('Error fetching homepage settings:', error)
     } finally {
@@ -222,20 +294,25 @@ export default function HomepageAdmin() {
     setMessage("")
     
     try {
-      const response = await fetch('/api/admin/homepage', {
-        method: 'POST',
+      const settingsToUpdate = Object.entries(settings).map(([key, value]) => ({
+        key,
+        value,
+        type: key.includes('image') ? 'image' : 'text',
+        description: `🏠 HOME - ${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`
+      }))
+
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ settings: settingsToUpdate })
       })
 
-      if (response.ok) {
-        setMessage("Homepage settings saved successfully!")
-        setTimeout(() => setMessage(""), 3000)
-      } else {
-        throw new Error('Failed to save settings')
-      }
+      if (!response.ok) throw new Error('Failed to save settings')
+
+      setMessage("Homepage settings saved successfully!")
+      setTimeout(() => setMessage(""), 3000)
     } catch (error) {
       setMessage("Error saving settings. Please try again.")
       console.error('Error saving homepage settings:', error)
@@ -271,6 +348,202 @@ export default function HomepageAdmin() {
               </div>
             ) : (
               <div className="space-y-6 md:space-y-8">
+                {/* Site Information */}
+                <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                  <h2 className="text-lg font-semibold mb-4">Site Information</h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Basic site information displayed in headers and meta tags.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Site Title
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.site_title}
+                        onChange={(e) => handleInputChange('site_title', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="West Acton Community Centre"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Site Description
+                      </label>
+                      <textarea
+                        value={settings.site_description}
+                        onChange={(e) => handleInputChange('site_description', e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="A vibrant community centre serving West Acton and surrounding areas"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                  <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Contact details and address information.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.contact_phone}
+                        onChange={(e) => handleInputChange('contact_phone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="+44 20 1234 5678"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={settings.contact_email}
+                        onChange={(e) => handleInputChange('contact_email', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="info@westactoncc.org.uk"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.address}
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="West Acton Community Centre, High Street, London W3"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statistics & Hours */}
+                <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                  <h2 className="text-lg font-semibold mb-4">Statistics & Opening Hours</h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Community statistics and opening hours displayed on the homepage.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Residents Served
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.residents_served}
+                        onChange={(e) => handleInputChange('residents_served', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="2,000+"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Weekly Programs
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.weekly_programs}
+                        onChange={(e) => handleInputChange('weekly_programs', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="15+"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Community Residents
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.community_residents}
+                        onChange={(e) => handleInputChange('community_residents', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="2,000+"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Opening Hours (Short)
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.opening_hours_text}
+                        onChange={(e) => handleInputChange('opening_hours_text', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="7 days"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Opening Hours (Detailed)
+                      </label>
+                      <input
+                        type="text"
+                        value={settings.opening_hours_details}
+                        onChange={(e) => handleInputChange('opening_hours_details', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="Monday to Sunday, 7am-11pm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div className="bg-white shadow rounded-lg p-4 md:p-6">
+                  <h2 className="text-lg font-semibold mb-4">Social Media</h2>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Social media profile links.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Facebook URL
+                      </label>
+                      <input
+                        type="url"
+                        value={settings.social_facebook}
+                        onChange={(e) => handleInputChange('social_facebook', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="https://facebook.com/yourpage"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Instagram URL
+                      </label>
+                      <input
+                        type="url"
+                        value={settings.social_instagram}
+                        onChange={(e) => handleInputChange('social_instagram', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="https://instagram.com/yourprofile"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Hero Section */}
                 <div className="bg-white shadow rounded-lg p-4 md:p-6">
                   <h2 className="text-lg font-semibold mb-4">Hero Section</h2>
@@ -291,6 +564,19 @@ export default function HomepageAdmin() {
                         currentImage={settings.hero_background_image}
                         label="Hero Background Image"
                         accept="image/*"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hero Subtitle
+                      </label>
+                      <textarea
+                        value={settings.hero_subtitle}
+                        onChange={(e) => handleInputChange('hero_subtitle', e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+                        placeholder="Your local hub for education, leisure, and recreational programs..."
                       />
                     </div>
                     

@@ -20,7 +20,6 @@ export interface SiteSettings {
   maintenance_mode: boolean
   residents_served: string
   weekly_programs: string
-  main_hall_capacity: string
   opening_hours_text: string
   opening_hours_details: string
   hero_subtitle: string
@@ -72,7 +71,6 @@ export async function getSettings(): Promise<SiteSettings> {
       ['maintenance_mode', false],
       ['residents_served', '2,000+'],
       ['weekly_programs', '15+'],
-      ['main_hall_capacity', '120'],
       ['opening_hours_text', '7 days'],
       ['opening_hours_details', 'Open Monday to Sunday, 7am-11pm'],
       ['hero_subtitle', 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.'],
@@ -137,7 +135,6 @@ function getDefaultSettings(): SiteSettings {
     maintenance_mode: false,
     residents_served: '2,000+',
     weekly_programs: '15+',
-    main_hall_capacity: '120',
     opening_hours_text: '7 days',
     opening_hours_details: 'Open Monday to Sunday, 7am-11pm',
     hero_subtitle: 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.',
@@ -173,7 +170,6 @@ export async function fetchClientSettings(): Promise<SiteSettings> {
       ['maintenance_mode', false],
       ['residents_served', '2,000+'],
       ['weekly_programs', '15+'],
-      ['main_hall_capacity', '120'],
       ['opening_hours_text', '7 days'],
       ['opening_hours_details', 'Open Monday to Sunday, 7am-11pm'],
       ['hero_subtitle', 'Your local hub for education, leisure, and recreational programmes. We serve over 2,000 residents in West Acton with 15+ regular programmes every week.'],

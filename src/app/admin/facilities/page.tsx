@@ -22,12 +22,14 @@ interface Facility {
   updatedAt: string
 }
 
+// No facilities page settings needed - main hall capacity comes from facility records
+
 export default function FacilitiesManagement() {
   const [facilities, setFacilities] = useState<Facility[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [editingFacility, setEditingFacility] = useState<Facility | null>(null)
-
+  
   useEffect(() => {
     fetchFacilities()
   }, [])
@@ -65,6 +67,7 @@ export default function FacilitiesManagement() {
       alert('Failed to update facility')
     }
   }
+
 
   if (loading) {
     return (

@@ -11,7 +11,6 @@ interface AdminLayoutProps {
 
 const navigation = [
   { name: "Home", href: "/admin" },
-  { name: "Site Info", href: "/admin/settings" },
   { name: "Programs", href: "/admin/programs" },
   { name: "Community Groups", href: "/admin/community-groups" },
   { name: "Facilities", href: "/admin/facilities" },

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
+import FileUpload from "@/components/FileUpload"
 import Link from "next/link"
 
 export const dynamic = 'force-dynamic'
@@ -32,15 +33,31 @@ interface Program {
   }>
 }
 
+interface ProgramsPageSettings {
+  programs_hero_title: string
+  programs_hero_subtitle: string
+  programs_hero_image: string
+}
+
 export default function ProgramsManagement() {
   const [programs, setPrograms] = useState<Program[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("")
+  
+  // Programs page settings
+  const [pageSettings, setPageSettings] = useState<ProgramsPageSettings>({
+    programs_hero_title: "Programmes & Activities",
+    programs_hero_subtitle: "15+ regular programmes every week for all ages and interests",
+    programs_hero_image: "/img/IMG_1290.jpeg"
+  })
+  const [settingsLoading, setSettingsLoading] = useState(false)
+  const [settingsMessage, setSettingsMessage] = useState("")
 
   useEffect(() => {
     fetchPrograms()
+    fetchPageSettings()
   }, [])
 
   const fetchPrograms = async () => {
@@ -83,6 +100,66 @@ export default function ProgramsManagement() {
       'fitness': 'bg-green-100 text-green-800'
     }
     return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-800'
+  }
+
+  const fetchPageSettings = async () => {
+    try {
+      const response = await fetch('/api/settings')
+      if (!response.ok) throw new Error('Failed to fetch settings')
+      const data = await response.json()
+      
+      const settings = data.reduce((acc: any, setting: any) => {
+        acc[setting.key] = setting.value
+        return acc
+      }, {})
+      
+      setPageSettings({
+        programs_hero_title: settings.programs_hero_title || "Programmes & Activities",
+        programs_hero_subtitle: settings.programs_hero_subtitle || "15+ regular programmes every week for all ages and interests",
+        programs_hero_image: settings.programs_hero_image || "/img/IMG_1290.jpeg"
+      })
+    } catch (error) {
+      console.error('Error fetching page settings:', error)
+    }
+  }
+
+  const savePageSettings = async () => {
+    setSettingsLoading(true)
+    setSettingsMessage("")
+    
+    try {
+      const settingsToUpdate = Object.entries(pageSettings).map(([key, value]) => ({
+        key,
+        value,
+        type: key === 'programs_hero_image' ? 'image' : 'text',
+        description: `📚 PROGRAMS - ${key.replace('programs_hero_', '').replace('_', ' ')}`
+      }))
+
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ settings: settingsToUpdate })
+      })
+
+      if (!response.ok) throw new Error('Failed to save settings')
+
+      setSettingsMessage("Programs page settings saved successfully!")
+      setTimeout(() => setSettingsMessage(""), 3000)
+    } catch (error) {
+      setSettingsMessage("Error saving settings. Please try again.")
+      console.error('Error saving page settings:', error)
+    } finally {
+      setSettingsLoading(false)
+    }
+  }
+
+  const handlePageSettingChange = (field: keyof ProgramsPageSettings, value: string) => {
+    setPageSettings(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   // Filter programs based on search term and category
@@ -133,6 +210,74 @@ export default function ProgramsManagement() {
               <div className="text-sm text-red-600">{error}</div>
             </div>
           )}
+
+          {settingsMessage && (
+            <div className={`p-4 rounded-md text-sm ${
+              settingsMessage.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+            }`}>
+              {settingsMessage}
+            </div>
+          )}
+
+          {/* Programs Page Settings */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Programs Page Settings</h2>
+                <p className="text-sm text-gray-500">Configure the programs page hero section</p>
+              </div>
+              <button
+                onClick={savePageSettings}
+                disabled={settingsLoading}
+                className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+              >
+                {settingsLoading ? 'Saving...' : 'Save Settings'}
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Programs Hero Title
+                </label>
+                <input
+                  type="text"
+                  value={pageSettings.programs_hero_title}
+                  onChange={(e) => handlePageSettingChange('programs_hero_title', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  placeholder="Programmes & Activities"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Programs Hero Subtitle
+                </label>
+                <input
+                  type="text"
+                  value={pageSettings.programs_hero_subtitle}
+                  onChange={(e) => handlePageSettingChange('programs_hero_subtitle', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  placeholder="15+ regular programmes every week for all ages and interests"
+                />
+              </div>
+              
+              <div>
+                <FileUpload
+                  onFileSelect={(mediaItem) => {
+                    if (mediaItem.filePath) {
+                      handlePageSettingChange('programs_hero_image', mediaItem.filePath)
+                    } else {
+                      handlePageSettingChange('programs_hero_image', '')
+                    }
+                  }}
+                  currentImage={pageSettings.programs_hero_image}
+                  label="Programs Hero Background Image"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Search and Filter */}
           <div className="bg-white shadow rounded-lg p-6">

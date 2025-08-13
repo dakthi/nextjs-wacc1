@@ -4,15 +4,16 @@ import { SiteSettings } from "@/lib/settings";
 interface HeroProps {
   settings?: SiteSettings;
   backgroundImage?: string;
+  mainHallCapacity?: string;
 }
 
-export function Hero({ settings, backgroundImage }: HeroProps) {
+export function Hero({ settings, backgroundImage, mainHallCapacity }: HeroProps) {
   const siteTitle = settings?.site_title || 'West Acton Community Centre';
   const heroSubtitle = settings?.hero_subtitle || 'Your local hub bringing together 2,000+ residents through education, leisure, and recreational programs';
   const residentsServed = settings?.residents_served || '2,000+';
   const weeklyPrograms = settings?.weekly_programs || '15+';
   const openingDays = settings?.opening_hours_text || '7';
-  const mainHallCapacity = settings?.main_hall_capacity || '120';
+  const hallCapacity = mainHallCapacity || '120';
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* Background Image */}
@@ -71,7 +72,7 @@ export function Hero({ settings, backgroundImage }: HeroProps) {
             </div>
             <div className="text-center bg-black/20 backdrop-blur-sm rounded-lg p-3 sm:p-4">
               <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-400 mb-1">
-                {mainHallCapacity}
+                {hallCapacity}
               </div>
               <div className="text-xs sm:text-sm text-gray-200 font-medium">
                 Main Hall Capacity

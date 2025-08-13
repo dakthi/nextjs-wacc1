@@ -80,7 +80,15 @@ export default async function Home() {
     },
   ];
 
-  // Community stats data using settings
+  // Get main hall capacity from facilities data
+  const mainHall = facilities.find(f => 
+    f.name.toLowerCase().includes('main hall') || 
+    f.name.toLowerCase().includes('main') ||
+    f.name.toLowerCase().includes('hall')
+  )
+  const mainHallCapacity = mainHall?.capacity ? mainHall.capacity.toString() : '120'
+
+  // Community stats data using settings and facilities data
   const communityStats = [
     {
       title: settings.residents_served,
@@ -91,7 +99,7 @@ export default async function Home() {
       desc: "Regular groups and programmes per week",
     },
     {
-      title: settings.main_hall_capacity,
+      title: mainHallCapacity,
       desc: "Maximum capacity in our Main Hall",
     },
     {
@@ -196,6 +204,7 @@ export default async function Home() {
       <Hero 
         settings={settings} 
         backgroundImage={processFacilityImage(facilities.find(f => f.imageUrl)?.imageUrl || null, facilities[0]?.name) || undefined}
+        mainHallCapacity={mainHallCapacity}
       />
       <SplitBanner sections={splitBannerData} />
       
