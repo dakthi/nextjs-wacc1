@@ -207,33 +207,6 @@ export default async function Facilities() {
           </div>
         </div>
       </Container>
-      
-
-
-      <Container>
-        <SectionTitle
-          preTitle="Alternative Booking"
-          title="Other Ways to Book"
-        >
-          All booking enquiries are handled through our convenient contact form system for prompt response.
-        </SectionTitle>
-
-        <div className="grid gap-10 lg:grid-cols-3 xl:grid-cols-3 mt-16">
-          {bookingInfo.map((item, index) => (
-            <div key={index} className="lg:col-span-1">
-              <div className="flex flex-col justify-between w-full h-full px-6 py-6 bg-gray-100 dark:bg-gray-800 rounded-2xl">
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="text-xl font-bold leading-snug tracking-tight text-gray-800 dark:text-white mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-lg leading-normal text-gray-500 dark:text-gray-300">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Container>
 
       <Container>
         <SectionTitle

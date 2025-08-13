@@ -11,6 +11,9 @@ RUN npm ci
 # Copy application code (but .dockerignore will exclude junk like node_modules)
 COPY . .
 
+# Set dummy DATABASE_URL for build (prevents Prisma validation errors)
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
 # Generate Prisma client
 RUN npx prisma generate
 
@@ -31,8 +34,14 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 
+# Create uploads volume directory
+RUN mkdir -p /app/uploads
+
 # Expose Next.js port
 EXPOSE 3000
+
+# Declare volume for persistent file storage
+VOLUME ["/app/uploads"]
 
 # Start the Next.js server
 CMD ["npm", "start"]

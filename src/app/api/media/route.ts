@@ -78,8 +78,8 @@ export async function POST(request: NextRequest) {
     const sanitizedName = nameWithoutExt.replace(/[^a-zA-Z0-9-_]/g, '_')
     const filename = `${timestamp}_${sanitizedName}${extension}`
 
-    // Ensure upload directory exists
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+    // Ensure upload directory exists - use env var for persistent storage
+    const uploadDir = process.env.UPLOAD_PATH || path.join(process.cwd(), 'public', 'uploads')
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true })
     }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       data: {
         filename,
         originalName: file.name,
-        filePath: `/uploads/${filename}`,
+        filePath: `/api/media/file/${filename}`,
         fileType: file.type,
         fileSize: file.size,
         altText: altText || null,
