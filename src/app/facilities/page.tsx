@@ -1,4 +1,4 @@
-import { getFacilities } from "@/lib/actions";
+import { getFacilities, getFacilityGallery } from "@/lib/actions";
 import { TextOnlyHero } from "@/components/TextOnlyHero";
 import { Container } from "@/components/Container";
 import { SectionTitle } from "@/components/SectionTitle";
@@ -106,8 +106,11 @@ const facilityImages = [
 ];
 
 export default async function Facilities() {
-  // Fetch facilities using server action
-  const facilities = await getFacilities()
+  // Fetch facilities and gallery using server actions
+  const [facilities, galleryImages] = await Promise.all([
+    getFacilities(),
+    getFacilityGallery()
+  ])
 
 
   // Process facilities for card display
@@ -157,45 +160,133 @@ export default async function Facilities() {
         backgroundImage={heroImage}
       />
       
-      {/* Location & Booking Section - Two Columns */}
+      {/* Facilities & Booking Section - Two Columns */}
       <Container>
         <div className="py-16">
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Column 1 - Location */}
-            <div>
-              <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
-                Our Location
-              </h2>
-              <p className="text-gray-700 leading-relaxed mb-6">
-                Conveniently located in Churchill Gardens with excellent transport links and parking facilities.
-              </p>
-              
-              <GoogleMap 
-                address="West Acton Community Centre, Churchill Gardens, Acton, London W3 0JN"
-                className="w-full h-64 rounded-lg shadow-md border border-gray-200 mb-4"
-              />
-              
-              <div className="space-y-2">
-                <p className="text-sm text-gray-600">
-                  📍 Churchill Gardens, Acton, London W3 0JN
+            {/* Left Column - Facility Cards + Location + Everything You Need */}
+            <div className="space-y-8">
+              {/* First Two Facility Cards */}
+              <div className="space-y-6">
+                <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
+                  Our Facilities
+                </h2>
+                {displayFacilities.slice(0, 2).map((facility) => (
+                  <div key={facility.id} className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+                    {/* Image */}
+                    <div className="h-48 bg-gray-100 relative">
+                      <img
+                        src={facility.imageUrl || "/img/80-chairs.jpeg"}
+                        alt={`${facility.name} - Community Centre Facility`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="p-6">
+                      <div className="flex flex-col mb-3">
+                        <h3 className="text-xl font-heading font-bold text-primary-600 mb-2">
+                          {facility.name}
+                        </h3>
+                        <span className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-medium self-start">
+                          Available for Hire
+                        </span>
+                      </div>
+                      
+                      <p className="text-primary-600 font-medium text-sm mb-2">{facility.subtitle}</p>
+                      <p className="text-gray-700 text-sm mb-4 leading-relaxed">{facility.description}</p>
+                      
+                      {/* Specs */}
+                      <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <span className="text-xs font-medium text-gray-600">Capacity</span>
+                          <p className="font-semibold text-gray-900 text-sm">{facility.capacity || 'Various'} people</p>
+                        </div>
+                        <div>
+                          <span className="text-xs font-medium text-gray-600">Dimensions</span>
+                          <p className="font-semibold text-gray-900 text-sm">{facility.dimensions || 'Contact for details'}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Features */}
+                      {facility.features && facility.features.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-2 text-sm">Features</h4>
+                          <ul className="space-y-1 text-xs text-gray-600">
+                            {facility.features.slice(0, 4).map((feature, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1 h-1 bg-primary-600 rounded-full mr-2 flex-shrink-0"></span>
+                                <span className="leading-tight">{String(feature)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Everything You Need Section */}
+              <div className="bg-gray-50 rounded-2xl p-6">
+                <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
+                  Everything You Need
+                </h2>
+                <p className="text-gray-700 mb-6 leading-relaxed">
+                  Our facilities include additional amenities to ensure your event runs smoothly 
+                  and all attendees feel welcome.
                 </p>
-                <p className="text-xs text-gray-500">
-                  2 min from West Acton Station
+
+                <div className="space-y-4">
+                  {additionalFacilities.map((facility, index) => (
+                    <div key={index} className="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {facility.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {facility.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Location Section */}
+              <div>
+                <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
+                  Our Location
+                </h2>
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  Conveniently located in Churchill Gardens with excellent transport links and parking facilities.
                 </p>
-                <a 
-                  href="https://www.google.com/maps/dir/?api=1&destination=Churchill%20Gardens%2C%20Acton%2C%20London%20W3%200JN"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block text-primary-600 hover:text-primary-800 font-medium text-sm underline"
-                >
-                  Get Directions →
-                </a>
+                
+                <GoogleMap 
+                  address="West Acton Community Centre, Churchill Gardens, Acton, London W3 0JN"
+                  className="w-full h-64 rounded-lg shadow-md border border-gray-200 mb-4"
+                />
+                
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    📍 Churchill Gardens, Acton, London W3 0JN
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    2 min from West Acton Station
+                  </p>
+                  <a 
+                    href="https://www.google.com/maps/dir/?api=1&destination=Churchill%20Gardens%2C%20Acton%2C%20London%20W3%200JN"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-primary-600 hover:text-primary-800 font-medium text-sm underline"
+                  >
+                    Get Directions →
+                  </a>
+                </div>
               </div>
             </div>
 
-            {/* Column 2 - Booking Form */}
+            {/* Right Column - Booking Form */}
             <div>
-              <div className="bg-primary-50 rounded-2xl p-6 h-full">
+              <div className="bg-primary-50 rounded-2xl p-6 h-fit sticky top-8">
                 <h2 className="text-2xl font-heading font-bold text-primary-600 mb-4 uppercase tracking-tight">
                   Book Your Event
                 </h2>
@@ -210,95 +301,74 @@ export default async function Facilities() {
         </div>
       </Container>
 
-      <Container>
-        <SectionTitle
-          preTitle="Additional Amenities"
-          title="Everything You Need"
-        >
-          Our facilities include additional amenities to ensure your event runs smoothly 
-          and all attendees feel welcome.
-        </SectionTitle>
+      {/* Additional Facility Cards (if more than 2) */}
+      {displayFacilities.length > 2 && (
+        <Container>
+          <SectionTitle
+            preTitle="Additional Spaces"
+            title="More Facilities"
+          >
+            Explore our additional spaces and amenities for your events.
+          </SectionTitle>
 
-        <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-2 mt-16">
-          {additionalFacilities.map((facility, index) => (
-            <div key={index} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
-                {facility.title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                {facility.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Container>
-
-      {/* Facilities Cards */}
-      <Container>
-        <SectionTitle
-          preTitle="Available Spaces"
-          title="Our Facilities"
-        >
-          Choose from our professionally managed spaces, each designed to accommodate different types of events and gatherings.
-        </SectionTitle>
-
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 mt-16 space-y-8">
-          {displayFacilities.map((facility) => (
-            <div key={facility.id} className="break-inside-avoid bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
-              {/* Image */}
-              <div className="h-48 bg-gray-100 relative">
-                <img
-                  src={facility.imageUrl || "/img/80-chairs.jpeg"}
-                  alt={`${facility.name} - Community Centre Facility`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              {/* Content */}
-              <div className="p-4">
-                <div className="flex flex-col mb-3">
-                  <h3 className="text-xl font-heading font-bold text-primary-600 mb-2">
-                    {facility.name}
-                  </h3>
-                  <span className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-medium self-start">
-                    Available for Hire
-                  </span>
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 mt-16 space-y-8">
+            {displayFacilities.slice(2).map((facility) => (
+              <div key={facility.id} className="break-inside-avoid bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 mb-8">
+                {/* Image */}
+                <div className="h-48 bg-gray-100 relative">
+                  <img
+                    src={facility.imageUrl || "/img/80-chairs.jpeg"}
+                    alt={`${facility.name} - Community Centre Facility`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 
-                <p className="text-primary-600 font-medium text-sm mb-2">{facility.subtitle}</p>
-                <p className="text-gray-700 text-sm mb-3 leading-relaxed">{facility.description}</p>
-                
-                {/* Specs */}
-                <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <span className="text-xs font-medium text-gray-600">Capacity</span>
-                    <p className="font-semibold text-gray-900 text-sm">{facility.capacity || 'Various'} people</p>
+                {/* Content */}
+                <div className="p-4">
+                  <div className="flex flex-col mb-3">
+                    <h3 className="text-xl font-heading font-bold text-primary-600 mb-2">
+                      {facility.name}
+                    </h3>
+                    <span className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-medium self-start">
+                      Available for Hire
+                    </span>
                   </div>
-                  <div>
-                    <span className="text-xs font-medium text-gray-600">Dimensions</span>
-                    <p className="font-semibold text-gray-900 text-sm">{facility.dimensions || 'Contact for details'}</p>
+                  
+                  <p className="text-primary-600 font-medium text-sm mb-2">{facility.subtitle}</p>
+                  <p className="text-gray-700 text-sm mb-3 leading-relaxed">{facility.description}</p>
+                  
+                  {/* Specs */}
+                  <div className="grid grid-cols-2 gap-3 mb-3 p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <span className="text-xs font-medium text-gray-600">Capacity</span>
+                      <p className="font-semibold text-gray-900 text-sm">{facility.capacity || 'Various'} people</p>
+                    </div>
+                    <div>
+                      <span className="text-xs font-medium text-gray-600">Dimensions</span>
+                      <p className="font-semibold text-gray-900 text-sm">{facility.dimensions || 'Contact for details'}</p>
+                    </div>
                   </div>
+                  
+                  {/* Features */}
+                  {facility.features && facility.features.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-2 text-sm">Features</h4>
+                      <ul className="space-y-1 text-xs text-gray-600">
+                        {facility.features.slice(0, 4).map((feature, idx) => (
+                          <li key={idx} className="flex items-center">
+                            <span className="w-1 h-1 bg-primary-600 rounded-full mr-2 flex-shrink-0"></span>
+                            <span className="leading-tight">{String(feature)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-                
-                {/* Features */}
-                {facility.features && facility.features.length > 0 && (
-                  <div>
-                    <h4 className="font-semibold text-gray-900 mb-2 text-sm">Features</h4>
-                    <ul className="space-y-1 text-xs text-gray-600">
-                      {facility.features.slice(0, 4).map((feature, idx) => (
-                        <li key={idx} className="flex items-center">
-                          <span className="w-1 h-1 bg-primary-600 rounded-full mr-2 flex-shrink-0"></span>
-                          <span className="leading-tight">{String(feature)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
-        </div>
-      </Container>
+            ))}
+          </div>
+        </Container>
+      )}
 
       {/* Photo Gallery */}
       <Container>
@@ -311,22 +381,46 @@ export default async function Facilities() {
         </SectionTitle>
 
         <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-3 mt-16">
-          {facilityImages.map((image, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-              <div className="h-48 bg-gray-100 relative">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-full object-cover"
-                />
+          {galleryImages.length > 0 ? (
+            galleryImages.map((image) => (
+              <div key={image.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div className="h-48 bg-gray-100 relative">
+                  <img
+                    src={image.imageUrl}
+                    alt={image.altText || image.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    {image.title}
+                  </h3>
+                  {image.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
+                      {image.description}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                  {image.title}
-                </h3>
+            ))
+          ) : (
+            facilityImages.map((image, index) => (
+              <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <div className="h-48 bg-gray-100 relative">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    {image.title}
+                  </h3>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
       </Container>

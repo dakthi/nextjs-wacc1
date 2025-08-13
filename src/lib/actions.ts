@@ -102,3 +102,22 @@ export async function getActivePrograms(take?: number) {
     return []
   }
 }
+
+export async function getFacilityGallery() {
+  try {
+    if (!process.env.DATABASE_URL) {
+      return []
+    }
+
+    return await prisma.facilityGallery.findMany({
+      where: { active: true },
+      orderBy: [
+        { displayOrder: 'asc' },
+        { createdAt: 'desc' }
+      ]
+    })
+  } catch (error) {
+    console.error('Error fetching facility gallery:', error)
+    return []
+  }
+}
