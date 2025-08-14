@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import AdminLayout from "@/components/AdminLayout"
 import AdminAuth from "@/components/AdminAuth"
 import FileUpload from "@/components/FileUpload"
@@ -65,8 +66,12 @@ interface ActivitiesPageSettings {
   programs_hero_image: string
 }
 
-export default function ActivitiesManagement() {
+function ActivitiesContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'programs' | 'groups'>('programs')
+  const [editingGroup, setEditingGroup] = useState<CommunityGroup | null>(null)
+  const [showGroupForm, setShowGroupForm] = useState(false)
   
   // Programs state
   const [programs, setPrograms] = useState<Program[]>([])
@@ -91,11 +96,73 @@ export default function ActivitiesManagement() {
   const [settingsLoading, setSettingsLoading] = useState(false)
   const [settingsMessage, setSettingsMessage] = useState("")
 
+  // Form state for community groups
+  const [groupFormData, setGroupFormData] = useState<Partial<CommunityGroup>>({
+    title: '',
+    description: '',
+    category: 'community',
+    meetingTime: '',
+    meetingDay: '',
+    contactName: '',
+    contactEmail: '',
+    contactPhone: '',
+    imageUrl: '',
+    websiteUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    memberCount: null,
+    ageGroup: '',
+    language: '',
+    fees: '',
+    featured: false,
+    displayOrder: 0,
+    active: true
+  })
+  const [groupFormLoading, setGroupFormLoading] = useState(false)
+  const [groupFormError, setGroupFormError] = useState('')
+
   useEffect(() => {
     fetchPrograms()
     fetchGroups()
     fetchPageSettings()
-  }, [])
+
+    // Handle URL parameters
+    const tab = searchParams.get('tab')
+    const action = searchParams.get('action')
+    const id = searchParams.get('id')
+
+    if (tab === 'groups') {
+      setActiveTab('groups')
+      
+      if (action === 'new') {
+        setShowGroupForm(true)
+        setEditingGroup(null)
+        setGroupFormData({
+          title: '',
+          description: '',
+          category: 'community',
+          meetingTime: '',
+          meetingDay: '',
+          contactName: '',
+          contactEmail: '',
+          contactPhone: '',
+          imageUrl: '',
+          websiteUrl: '',
+          facebookUrl: '',
+          instagramUrl: '',
+          memberCount: null,
+          ageGroup: '',
+          language: '',
+          fees: '',
+          featured: false,
+          displayOrder: 0,
+          active: true
+        })
+      } else if (action === 'edit' && id) {
+        fetchGroupForEdit(parseInt(id))
+      }
+    }
+  }, [searchParams])
 
   const fetchPrograms = async () => {
     try {
@@ -123,6 +190,146 @@ export default function ActivitiesManagement() {
     } finally {
       setGroupsLoading(false)
     }
+  }
+
+  const fetchGroupForEdit = async (id: number) => {
+    try {
+      const response = await fetch(`/api/community-groups/${id}`)
+      if (!response.ok) throw new Error('Failed to fetch community group')
+      const data = await response.json()
+      setEditingGroup(data)
+      setGroupFormData(data)
+      setShowGroupForm(true)
+    } catch (error) {
+      console.error('Error fetching community group:', error)
+      setGroupFormError('Failed to load community group for editing')
+    }
+  }
+
+  const handleGroupSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setGroupFormLoading(true)
+    setGroupFormError('')
+
+    // Client-side validation
+    if (!groupFormData.title?.trim()) {
+      setGroupFormError('Group title is required')
+      setGroupFormLoading(false)
+      return
+    }
+
+    // Validate URLs if provided
+    const urlFields = ['websiteUrl', 'facebookUrl', 'instagramUrl'] as const
+    for (const field of urlFields) {
+      const url = groupFormData[field]
+      if (url && url.trim()) {
+        try {
+          new URL(url)
+        } catch {
+          setGroupFormError(`Please enter a valid ${field.replace('Url', '').toLowerCase()} URL`)
+          setGroupFormLoading(false)
+          return
+        }
+      }
+    }
+
+    // Validate email if provided
+    if (groupFormData.contactEmail && groupFormData.contactEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(groupFormData.contactEmail)) {
+        setGroupFormError('Please enter a valid email address')
+        setGroupFormLoading(false)
+        return
+      }
+    }
+
+    try {
+      const url = editingGroup 
+        ? `/api/community-groups/${editingGroup.id}`
+        : '/api/community-groups'
+      
+      const method = editingGroup ? 'PUT' : 'POST'
+      
+      // Clean up data before sending
+      const cleanData = {
+        ...groupFormData,
+        title: groupFormData.title?.trim(),
+        description: groupFormData.description?.trim() || null,
+        category: groupFormData.category || null,
+        meetingTime: groupFormData.meetingTime || null,
+        meetingDay: groupFormData.meetingDay || null,
+        contactName: groupFormData.contactName?.trim() || null,
+        contactEmail: groupFormData.contactEmail?.trim() || null,
+        contactPhone: groupFormData.contactPhone?.trim() || null,
+        imageUrl: groupFormData.imageUrl?.trim() || null,
+        websiteUrl: groupFormData.websiteUrl?.trim() || null,
+        facebookUrl: groupFormData.facebookUrl?.trim() || null,
+        instagramUrl: groupFormData.instagramUrl?.trim() || null,
+        ageGroup: groupFormData.ageGroup?.trim() || null,
+        language: groupFormData.language?.trim() || null,
+        fees: groupFormData.fees?.trim() || null,
+        featured: Boolean(groupFormData.featured),
+        active: groupFormData.active !== false,
+        displayOrder: Math.max(0, groupFormData.displayOrder || 0),
+        memberCount: groupFormData.memberCount && groupFormData.memberCount > 0 ? groupFormData.memberCount : null
+      }
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cleanData)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        let errorMessage = 'Failed to save community group'
+        try {
+          const errorData = JSON.parse(errorText)
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          errorMessage = errorText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      await fetchGroups()
+      setShowGroupForm(false)
+      setEditingGroup(null)
+      setGroupFormData({
+        title: '',
+        description: '',
+        category: 'community',
+        meetingTime: '',
+        meetingDay: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        imageUrl: '',
+        websiteUrl: '',
+        facebookUrl: '',
+        instagramUrl: '',
+        memberCount: null,
+        ageGroup: '',
+        language: '',
+        fees: '',
+        featured: false,
+        displayOrder: 0,
+        active: true
+      })
+      router.push('/admin/programs?tab=groups')
+    } catch (error) {
+      console.error('Error saving community group:', error)
+      setGroupFormError(error instanceof Error ? error.message : 'Failed to save community group')
+    } finally {
+      setGroupFormLoading(false)
+    }
+  }
+
+  const cancelGroupForm = () => {
+    setShowGroupForm(false)
+    setEditingGroup(null)
+    setGroupFormError('')
+    router.push('/admin/programs?tab=groups')
   }
 
   const fetchPageSettings = async () => {
@@ -476,15 +683,41 @@ export default function ActivitiesManagement() {
 
               {activeTab === 'groups' && (
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900">Community Groups</h3>
-                    <Link
-                      href="/admin/community-groups/new"
-                      className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
-                    >
-                      Add New Group
-                    </Link>
-                  </div>
+                  {!showGroupForm ? (
+                    <>
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-lg font-semibold text-gray-900">Community Groups</h3>
+                        <button
+                          onClick={() => {
+                            setShowGroupForm(true)
+                            setEditingGroup(null)
+                            setGroupFormData({
+                              title: '',
+                              description: '',
+                              category: 'community',
+                              meetingTime: '',
+                              meetingDay: '',
+                              contactName: '',
+                              contactEmail: '',
+                              contactPhone: '',
+                              imageUrl: '',
+                              websiteUrl: '',
+                              facebookUrl: '',
+                              instagramUrl: '',
+                              memberCount: null,
+                              ageGroup: '',
+                              language: '',
+                              fees: '',
+                              featured: false,
+                              displayOrder: 0,
+                              active: true
+                            })
+                          }}
+                          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium uppercase"
+                        >
+                          Add New Group
+                        </button>
+                      </div>
 
                   {/* Search and Filter for Groups */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -554,12 +787,16 @@ export default function ActivitiesManagement() {
                             </div>
                           </div>
                           <div className="flex gap-2 ml-4">
-                            <Link
-                              href={`/admin/community-groups/${group.id}/edit`}
+                            <button
+                              onClick={() => {
+                                setEditingGroup(group)
+                                setGroupFormData(group)
+                                setShowGroupForm(true)
+                              }}
                               className="text-primary-600 hover:text-primary-900 text-sm font-medium uppercase"
                             >
                               Edit
-                            </Link>
+                            </button>
                             <button
                               onClick={() => deleteGroup(group.id)}
                               className="text-red-600 hover:text-red-900 text-sm font-medium uppercase"
@@ -571,6 +808,347 @@ export default function ActivitiesManagement() {
                       </div>
                     ))}
                   </div>
+                    </>
+                  ) : (
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {editingGroup ? 'Edit Community Group' : 'Add New Community Group'}
+                        </h3>
+                        <button
+                          onClick={() => {
+                            setShowGroupForm(false)
+                            setEditingGroup(null)
+                            setGroupFormError('')
+                            router.push('/admin/programs?tab=groups')
+                          }}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {groupFormError && (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+                          <div className="text-sm text-red-600">{groupFormError}</div>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleGroupSubmit} className="space-y-6">
+                        {/* Basic Information */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Group Title *
+                            </label>
+                            <input
+                              type="text"
+                              value={groupFormData.title || ''}
+                              onChange={(e) => setGroupFormData(prev => ({...prev, title: e.target.value}))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Category
+                            </label>
+                            <select
+                              value={groupFormData.category || ''}
+                              onChange={(e) => setGroupFormData(prev => ({...prev, category: e.target.value}))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            >
+                              <option value="">Select Category</option>
+                              <option value="cultural">Cultural</option>
+                              <option value="community">Community</option>
+                              <option value="support">Support</option>
+                              <option value="education">Education</option>
+                              <option value="religious">Religious</option>
+                              <option value="sports">Sports & Recreation</option>
+                              <option value="health">Health & Wellbeing</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                          </label>
+                          <textarea
+                            rows={4}
+                            value={groupFormData.description || ''}
+                            onChange={(e) => setGroupFormData(prev => ({...prev, description: e.target.value}))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="Describe the community group, its purpose, and activities..."
+                          />
+                        </div>
+
+                        {/* Meeting Information */}
+                        <div className="border-t pt-6">
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Meeting Information</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Meeting Day
+                              </label>
+                              <select
+                                value={groupFormData.meetingDay || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, meetingDay: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              >
+                                <option value="">Select Day</option>
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Meeting Time
+                              </label>
+                              <input
+                                type="time"
+                                value={groupFormData.meetingTime || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, meetingTime: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Group Details */}
+                        <div className="border-t pt-6">
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Group Details</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Age Group
+                              </label>
+                              <input
+                                type="text"
+                                value={groupFormData.ageGroup || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, ageGroup: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="e.g., All ages, 18+, Seniors"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Language
+                              </label>
+                              <input
+                                type="text"
+                                value={groupFormData.language || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, language: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="e.g., English, Hindi, Arabic"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Member Count
+                              </label>
+                              <input
+                                type="number"
+                                value={groupFormData.memberCount || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, memberCount: e.target.value ? parseInt(e.target.value) : null}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Approximate member count"
+                                min="0"
+                              />
+                            </div>
+                          </div>
+                          <div className="mt-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Fees/Cost
+                            </label>
+                            <input
+                              type="text"
+                              value={groupFormData.fees || ''}
+                              onChange={(e) => setGroupFormData(prev => ({...prev, fees: e.target.value}))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              placeholder="e.g., Free, £5 per session, £20/month"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Contact Information */}
+                        <div className="border-t pt-6">
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Contact Information</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contact Name
+                              </label>
+                              <input
+                                type="text"
+                                value={groupFormData.contactName || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, contactName: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Primary contact person"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contact Email
+                              </label>
+                              <input
+                                type="email"
+                                value={groupFormData.contactEmail || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, contactEmail: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="contact@example.com"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contact Phone
+                              </label>
+                              <input
+                                type="tel"
+                                value={groupFormData.contactPhone || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, contactPhone: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Phone number"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Online Presence */}
+                        <div className="border-t pt-6">
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Online Presence</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Website URL
+                              </label>
+                              <input
+                                type="url"
+                                value={groupFormData.websiteUrl || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, websiteUrl: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="https://example.com"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Facebook URL
+                              </label>
+                              <input
+                                type="url"
+                                value={groupFormData.facebookUrl || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, facebookUrl: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="https://facebook.com/yourgroup"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Instagram URL
+                              </label>
+                              <input
+                                type="url"
+                                value={groupFormData.instagramUrl || ''}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, instagramUrl: e.target.value}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="https://instagram.com/yourgroup"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="border-t pt-6">
+                          <FileUpload
+                            onFileSelect={(mediaItem) => {
+                              if (mediaItem.filePath) {
+                                setGroupFormData(prev => ({...prev, imageUrl: mediaItem.filePath}))
+                              } else {
+                                setGroupFormData(prev => ({...prev, imageUrl: ''}))
+                              }
+                            }}
+                            currentImage={groupFormData.imageUrl || ''}
+                            label="Group Image"
+                            accept="image/*"
+                          />
+                        </div>
+
+                        {/* Settings */}
+                        <div className="border-t pt-6">
+                          <h4 className="text-md font-medium text-gray-900 mb-4">Settings</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Display Order
+                              </label>
+                              <input
+                                type="number"
+                                value={groupFormData.displayOrder || 0}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, displayOrder: parseInt(e.target.value) || 0}))}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="0"
+                                min="0"
+                              />
+                            </div>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id="featured"
+                                checked={groupFormData.featured || false}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, featured: e.target.checked}))}
+                                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                              />
+                              <label htmlFor="featured" className="ml-2 text-sm font-medium text-gray-700">
+                                Featured Group
+                              </label>
+                            </div>
+                            <div className="flex items-center">
+                              <input
+                                type="checkbox"
+                                id="active"
+                                checked={groupFormData.active !== false}
+                                onChange={(e) => setGroupFormData(prev => ({...prev, active: e.target.checked}))}
+                                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                              />
+                              <label htmlFor="active" className="ml-2 text-sm font-medium text-gray-700">
+                                Active
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Submit Buttons */}
+                        <div className="border-t pt-6 flex justify-end space-x-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowGroupForm(false)
+                              setEditingGroup(null)
+                              setGroupFormError('')
+                              router.push('/admin/programs?tab=groups')
+                            }}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={groupFormLoading}
+                            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                          >
+                            {groupFormLoading ? 'Saving...' : (editingGroup ? 'Update Group' : 'Create Group')}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -578,5 +1156,21 @@ export default function ActivitiesManagement() {
         </div>
       </AdminLayout>
     </AdminAuth>
+  )
+}
+
+export default function ProgramsPage() {
+  return (
+    <Suspense fallback={
+      <AdminAuth>
+        <AdminLayout>
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          </div>
+        </AdminLayout>
+      </AdminAuth>
+    }>
+      <ActivitiesContent />
+    </Suspense>
   )
 }

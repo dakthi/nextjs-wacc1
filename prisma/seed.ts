@@ -5,7 +5,6 @@ const prisma = new PrismaClient()
 async function main() {
   // Clear existing data (order matters due to foreign keys)
   await prisma.bookings.deleteMany()
-  await prisma.booking_availability.deleteMany()
   await prisma.programSchedule.deleteMany()
   await prisma.program.deleteMany()
   await prisma.facility.deleteMany()
