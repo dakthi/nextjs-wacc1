@@ -75,6 +75,61 @@ export async function sendAdminBookingNotification(data: AdminNotificationData) 
   }
 }
 
+export interface ContactFormData {
+  name: string
+  email: string
+  phone?: string
+  subject: string
+  message: string
+}
+
+export async function sendContactFormNotification(data: ContactFormData) {
+  try {
+    const resend = getResendClient()
+    const { data: emailData, error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: ['dakthi9@gmail.com'],
+      subject: `Contact Enquiry: ${data.subject}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px;">
+            New Contact Enquiry - West Acton Community Centre
+          </h2>
+          
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #28a745;">Contact Details</h3>
+            <p><strong>Name:</strong> ${data.name}</p>
+            <p><strong>Email:</strong> ${data.email}</p>
+            ${data.phone ? `<p><strong>Phone:</strong> ${data.phone}</p>` : ''}
+            <p><strong>Subject:</strong> ${data.subject}</p>
+          </div>
+          
+          <div style="background-color: #fff; padding: 20px; border: 1px solid #dee2e6; border-radius: 5px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #333;">Message</h3>
+            <p style="white-space: pre-wrap;">${data.message}</p>
+          </div>
+          
+          <hr style="border: 1px solid #dee2e6; margin: 20px 0;">
+          
+          <p style="color: #666; font-size: 12px;">
+            This enquiry was submitted through the West Acton Community Centre website contact form.
+          </p>
+        </div>
+      `
+    })
+
+    if (error) {
+      console.error('Error sending contact form notification:', error)
+      throw error
+    }
+
+    return emailData
+  } catch (error) {
+    console.error('Failed to send contact form notification:', error)
+    throw error
+  }
+}
+
 export async function sendAdminBookingStatusUpdate(data: AdminNotificationData) {
   try {
     const statusMessages = {

@@ -56,20 +56,10 @@ interface ContactInfo {
   active: boolean
 }
 
-interface OpeningHours {
-  id: number
-  title: string
-  schedule: any
-  description: string | null
-  type: string
-  active: boolean
-}
-
 export default async function Contact() {
-  // Fetch contact info and opening hours directly from database
+  // Fetch settings
   const settings = await getSettings()
   let contactInfoItems: ContactInfo[] = []
-  let openingHours: OpeningHours[] = []
   
   try {
     // Only fetch from database if DATABASE_URL is available
@@ -78,23 +68,24 @@ export default async function Contact() {
         where: { active: true },
         orderBy: { displayOrder: 'asc' }
       })
-      
-      openingHours = await prisma.openingHours.findMany({
-        where: { active: true },
-        orderBy: { id: 'asc' }
-      })
     }
   } catch (error) {
     console.error('Failed to fetch CMS data:', error)
     // Fallback to empty arrays which will use static data
   }
 
-  // Create dynamic location info from contact CMS data
-  const dynamicLocationInfo = contactInfoItems.length > 0 ? contactInfoItems.map(item => ({
-    title: item.label || item.type.charAt(0).toUpperCase() + item.type.slice(1),
-    details: item.value,
-    description: item.description || `${item.label || item.type} information`
-  })) : locationInfo
+  // Filter out the specific items we don't want to show
+  const filteredContactInfo = contactInfoItems.filter(item => {
+    // Remove General Enquiries email
+    if (item.label === "General Enquiries" && item.value === "info@westactoncentre.co.uk") return false;
+    // Remove Phone
+    if (item.label === "Phone" && item.value === "020 8992 8899") return false;
+    // Remove Ealing Council email
+    if (item.label === "Ealing Council" && item.value === "customers@ealing.gov.uk") return false;
+    // Remove Website
+    if (item.label === "Website" && item.value === "www.westactoncentre.co.uk") return false;
+    return true;
+  });
   return (
     <div>
       <TextOnlyHero 
@@ -106,17 +97,56 @@ export default async function Contact() {
       {/* Main Content - Two Column Layout on XL screens */}
       <Container className="py-16">
         <div className="grid gap-16 xl:grid-cols-2 xl:gap-24">
-          {/* Left Column - Contact Form */}
-          <div>
-            <SectionTitle
-              preTitle="Get In Touch"
-              title="Contact Form"
-            >
-              Have a question or want to get involved? Send us a message using the form below.
-            </SectionTitle>
-            
-            <div className="mt-12">
-              <ContactForm />
+          {/* Left Column - Contact Form and Opening Hours */}
+          <div className="space-y-12">
+            <div>
+              <SectionTitle
+                preTitle="Get In Touch"
+                title="Contact Form"
+              >
+                Have a question or want to get involved? Send us a message using the form below.
+              </SectionTitle>
+              
+              {/* Contact Information */}
+              {filteredContactInfo.length > 0 && (
+                <div className="mt-8 mb-8 bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                  <div className="space-y-4">
+                    {filteredContactInfo.map((item, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className="flex-shrink-0 w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                          <span className="text-primary-600 font-bold text-sm">
+                            {item.type === "email" ? "✉" : 
+                             item.type === "phone" ? "☎" : 
+                             item.type === "website" ? "🌐" : "ℹ"}
+                          </span>
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900 text-sm">{item.label || item.type}</h4>
+                          <p className="text-primary-600 font-medium text-sm">{item.value}</p>
+                          {item.description && (
+                            <p className="text-gray-600 text-xs mt-1">{item.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="mt-12">
+                <ContactForm />
+              </div>
+            </div>
+
+            {/* Opening Hours */}
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">When We're Open</h3>
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <h3 className="text-2xl font-bold text-primary-600 mb-4">Opening Hours</h3>
+                <p className="text-xl font-semibold text-gray-900 mb-2">{settings.opening_hours_text} Days</p>
+                <p className="text-lg text-gray-700">{settings.opening_hours_details}</p>
+              </div>
             </div>
           </div>
 
@@ -141,7 +171,7 @@ export default async function Contact() {
               <div className="mt-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Getting Here</h3>
                 <div className="space-y-6">
-                  {dynamicLocationInfo.map((item, index) => (
+                  {locationInfo.map((item, index) => (
                     <div key={index} className="flex items-start space-x-4">
                       <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
                         <span className="text-primary-600 font-bold text-lg">
@@ -171,50 +201,6 @@ export default async function Contact() {
               </div>
             </div>
           </div>
-        </div>
-      </Container>
-
-      {/* Opening Hours */}
-      <Container className="py-16 bg-gray-50">
-        <SectionTitle
-          preTitle="Centre Hours"
-          title="When We're Open"
-        >
-          The centre is open 7 days a week for programmes and events.
-        </SectionTitle>
-
-        <div className="max-w-2xl mx-auto mt-12">
-          {openingHours.length > 0 ? (
-            <div className="space-y-6">
-              {openingHours.map((hours, index) => (
-                <div key={hours.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-xl font-bold text-primary-600 mb-3">{hours.title}</h3>
-                  {hours.description && (
-                    <p className="text-gray-600 mb-4">{hours.description}</p>
-                  )}
-                  <div className="space-y-2">
-                    {typeof hours.schedule === 'object' && hours.schedule ? 
-                      Object.entries(hours.schedule).map(([day, time]) => (
-                        <div key={day} className="flex justify-between items-center py-1 border-b border-gray-100 last:border-b-0">
-                          <span className="font-medium text-gray-900 capitalize">{day}</span>
-                          <span className="text-gray-700">{String(time)}</span>
-                        </div>
-                      )) : 
-                      <div className="text-center">
-                        <p className="text-lg text-gray-700">{settings.opening_hours_details}</p>
-                      </div>
-                    }
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <h3 className="text-2xl font-bold text-primary-600 mb-4">Opening Hours</h3>
-              <p className="text-xl font-semibold text-gray-900 mb-2">{settings.opening_hours_text} Days</p>
-              <p className="text-lg text-gray-700">{settings.opening_hours_details}</p>
-            </div>
-          )}
         </div>
       </Container>
     </div>

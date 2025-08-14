@@ -787,6 +787,19 @@ function FacilityEditForm({
           />
         </div>
 
+        <div>
+          <FileUpload
+            onFileSelect={(mediaItem) => {
+              if (mediaItem.filePath) {
+                setFormData(prev => ({ ...prev, imageUrl: mediaItem.filePath }))
+              }
+            }}
+            currentImage={formData.imageUrl}
+            label="Facility Image"
+            accept="image/*"
+          />
+        </div>
+
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Capacity</label>

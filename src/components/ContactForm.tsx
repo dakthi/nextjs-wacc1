@@ -10,32 +10,56 @@ export default function ContactForm() {
     subject: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
 
-    // Create email body
-    const emailBody = `
-New Contact Enquiry - West Acton Community Centre
+    try {
+      const response = await fetch('/api/contact-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-Contact Details:
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
+      const data = await response.json();
 
-Subject: ${formData.subject}
-
-Message:
-${formData.message}
-
----
-This enquiry was submitted through the West Acton Community Centre website contact form.
-    `.trim();
-
-    const subject = `Contact Enquiry: ${formData.subject}`;
-    const mailtoLink = `mailto:info@westactoncentre.co.uk?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-    
-    window.location.href = mailtoLink;
+      if (response.ok) {
+        setSubmitStatus({
+          type: 'success',
+          message: data.message || 'Your message has been sent successfully. We will respond within 2-3 working days.'
+        });
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: data.error || 'Failed to send message. Please try again.'
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: 'An error occurred. Please try again later.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -51,6 +75,17 @@ This enquiry was submitted through the West Acton Community Centre website conta
       <h3 className="text-2xl font-heading font-bold text-primary-600 mb-6 text-center uppercase tracking-wide">
         Contact Us
       </h3>
+      
+      {/* Status Message */}
+      {submitStatus.type && (
+        <div className={`mb-6 p-4 rounded-lg ${
+          submitStatus.type === 'success' 
+            ? 'bg-green-50 text-green-800 border border-green-200' 
+            : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {submitStatus.message}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
@@ -143,9 +178,14 @@ This enquiry was submitted through the West Acton Community Centre website conta
         <div className="text-center">
           <button
             type="submit"
-            className="w-full bg-primary-950 hover:bg-primary-900 text-white font-bold py-4 px-8 rounded-lg text-lg uppercase tracking-wide transition-colors"
+            disabled={isSubmitting}
+            className={`w-full font-bold py-4 px-8 rounded-lg text-lg uppercase tracking-wide transition-colors ${
+              isSubmitting 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-primary-950 hover:bg-primary-900'
+            } text-white`}
           >
-            Send Message
+            {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>
         </div>
 
