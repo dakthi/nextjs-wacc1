@@ -362,18 +362,12 @@ export default function CommunityGroupsDisplay() {
           <p className="text-gray-600 mb-6">
             If you're interested in starting a new community group at our centre, we'd love to hear from you!
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex justify-center">
             <a 
               href="/contact" 
               className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-md font-medium"
             >
-              Get in Touch
-            </a>
-            <a 
-              href="tel:+442012345678" 
-              className="text-primary-600 hover:text-primary-500 font-medium"
-            >
-              Call us: +44 20 1234 5678
+              Contact Us
             </a>
           </div>
         </div>
