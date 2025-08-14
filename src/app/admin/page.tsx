@@ -333,13 +333,6 @@ export default function HomepageAdmin() {
               </p>
             </div>
 
-            {message && (
-              <div className={`mb-4 md:mb-6 p-3 md:p-4 rounded-md text-sm md:text-base ${
-                message.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
-              }`}>
-                {message}
-              </div>
-            )}
 
             {loading ? (
               <div className="flex items-center justify-center py-8 md:py-12">
@@ -967,15 +960,24 @@ export default function HomepageAdmin() {
                   </div>
                 </div>
 
-                {/* Save Button */}
-                <div className="flex justify-center md:justify-end">
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 md:py-2 rounded-md text-sm md:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed uppercase"
-                  >
-                    {saving ? 'Saving...' : 'Save Homepage Settings'}
-                  </button>
+                {/* Save Button with Success Message */}
+                <div className="space-y-3">
+                  {message && (
+                    <div className={`p-3 md:p-4 rounded-md text-sm md:text-base ${
+                      message.includes('Error') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'
+                    }`}>
+                      {message}
+                    </div>
+                  )}
+                  <div className="flex justify-center md:justify-end">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 md:py-2 rounded-md text-sm md:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed uppercase"
+                    >
+                      {saving ? 'Saving...' : 'Save Homepage Settings'}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
